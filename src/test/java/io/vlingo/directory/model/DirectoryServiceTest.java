@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,13 +42,16 @@ public class DirectoryServiceTest {
   private MockServiceDiscoveryInterest interest1;
   private MockServiceDiscoveryInterest interest2;
   private MockServiceDiscoveryInterest interest3;
+  private List<MockServiceDiscoveryInterest> interests;
   private Node node;
   private TestWorld testWorld;
   
   @Test
-  public void testRegisterDiscoverOne() {
+  public void testShouldInformInterest() {
     directory.actor().start();
     directory.actor().use(new TestAttributesClient());
+    
+    // directory assigned leadership
     directory.actor().assignLeadership();
     
     final Location location = new Location("test-host", 1234);
@@ -62,6 +66,102 @@ public class DirectoryServiceTest {
     assertTrue(interest1.discoveredServices.contains(info));
   }
   
+  @Test
+  public void testShouldNotInformInterest() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
+    
+    // directory NOT assigned leadership
+    directory.actor().relinquishLeadership(); // actually never had leadership, but be explicit and prove no harm
+    
+    final Location location1 = new Location("test-host1", 1234);
+    final ServiceRegistrationInfo info1 = new ServiceRegistrationInfo("test-service1", Arrays.asList(location1));
+    client1.actor().register(info1);
+    
+    pause();
+    
+    assertTrue(interest1.servicesSeen.isEmpty());
+    assertFalse(interest1.servicesSeen.contains("test-service"));
+    assertTrue(interest1.discoveredServices.isEmpty());
+    assertFalse(interest1.discoveredServices.contains(info1));
+  }
+
+  @Test
+  public void testAlteredLeadership() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
+    
+    // START directory assigned leadership
+    directory.actor().assignLeadership();
+    
+    final Location location1 = new Location("test-host1", 1234);
+    final ServiceRegistrationInfo info1 = new ServiceRegistrationInfo("test-service1", Arrays.asList(location1));
+    client1.actor().register(info1);
+    
+    final Location location2 = new Location("test-host2", 1234);
+    final ServiceRegistrationInfo info2 = new ServiceRegistrationInfo("test-service2", Arrays.asList(location2));
+    client2.actor().register(info2);
+    
+    final Location location3 = new Location("test-host3", 1234);
+    final ServiceRegistrationInfo info3 = new ServiceRegistrationInfo("test-service3", Arrays.asList(location3));
+    client3.actor().register(info3);
+    
+    pause();
+    
+    for (final MockServiceDiscoveryInterest interest : interests) {
+      assertFalse(interest.servicesSeen.isEmpty());
+      assertTrue(interest.servicesSeen.contains("test-service1"));
+      assertTrue(interest.servicesSeen.contains("test-service2"));
+      assertTrue(interest.servicesSeen.contains("test-service3"));
+      assertFalse(interest.discoveredServices.isEmpty());
+      assertTrue(interest.discoveredServices.contains(info1));
+      assertTrue(interest.discoveredServices.contains(info2));
+      assertTrue(interest.discoveredServices.contains(info3));
+    }
+    
+    // ALTER directory relinquished leadership
+    directory.actor().relinquishLeadership();
+    pause();
+    for (final MockServiceDiscoveryInterest interest : interests) {
+      interest.servicesSeen.clear();
+      interest.discoveredServices.clear();
+    }
+    
+    pause();
+    
+    for (final MockServiceDiscoveryInterest interest : interests) {
+      assertTrue(interest.servicesSeen.isEmpty());
+      assertFalse(interest.servicesSeen.contains("test-service1"));
+      assertFalse(interest.servicesSeen.contains("test-service2"));
+      assertFalse(interest.servicesSeen.contains("test-service3"));
+      assertTrue(interest.discoveredServices.isEmpty());
+      assertFalse(interest.discoveredServices.contains(info1));
+      assertFalse(interest.discoveredServices.contains(info2));
+      assertFalse(interest.discoveredServices.contains(info3));
+    }
+    
+    // ALTER directory assigned leadership
+    directory.actor().assignLeadership();
+    pause();
+    for (final MockServiceDiscoveryInterest interest : interests) {
+      interest.servicesSeen.clear();
+      interest.discoveredServices.clear();
+    }
+    
+    pause();
+    
+    for (final MockServiceDiscoveryInterest interest : interests) {
+      assertFalse(interest.servicesSeen.isEmpty());
+      assertTrue(interest.servicesSeen.contains("test-service1"));
+      assertTrue(interest.servicesSeen.contains("test-service2"));
+      assertTrue(interest.servicesSeen.contains("test-service3"));
+      assertFalse(interest.discoveredServices.isEmpty());
+      assertTrue(interest.discoveredServices.contains(info1));
+      assertTrue(interest.discoveredServices.contains(info2));
+      assertTrue(interest.discoveredServices.contains(info3));
+    }
+  }
+
   @Test
   public void testRegisterDiscoverMutiple() {
     directory.actor().start();
@@ -82,7 +182,7 @@ public class DirectoryServiceTest {
     
     pause();
     
-    for (final MockServiceDiscoveryInterest interest : Arrays.asList(interest1, interest2, interest3)) {
+    for (final MockServiceDiscoveryInterest interest : interests) {
       assertFalse(interest.servicesSeen.isEmpty());
       assertTrue(interest.servicesSeen.contains("test-service1"));
       assertTrue(interest.servicesSeen.contains("test-service2"));
@@ -131,6 +231,8 @@ public class DirectoryServiceTest {
                     DirectoryClientActor.class,
                     Definition.parameters(interest3, group, 1024, 50, 10)),
             DirectoryClient.class);
+    
+    interests = Arrays.asList(interest1, interest2, interest3);
   }
   
   @After

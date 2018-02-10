@@ -55,8 +55,11 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
      
     if (isLocalNodeLeading) {
        logger().log("DIRECTORY: Assigned leadership; starting processing.");
-       
        directoryService.assignLeadership();
+    } else {
+      // prevent split brain in case another leader pushes in. if this node
+      // is not currently leading this operation will have no harm.
+      directoryService.relinquishLeadership();
     }
   }
 
@@ -67,6 +70,27 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
      if (localNode.id().equals(lostLeaderId)) {
        directoryService.relinquishLeadership();
      }
+  }
+
+  @Override
+  public void informLocalNodeShutDown(final Id nodeId) {
+    // prevent split brain in case another leader pushes in. if this node
+    // is not currently leading this operation will have no harm.
+    directoryService.relinquishLeadership();
+  }
+
+  @Override
+  public void informNodeLeftCluster(final Id nodeId, final boolean isHealthyCluster) {
+    if (localNode.id().equals(nodeId)) {
+      // prevent split brain in case another leader pushes in. if this node
+      // is not currently leading this operation will have no harm.
+      directoryService.relinquishLeadership();
+    }
+  }
+
+  @Override
+  public void informQuorumLost() {
+    directoryService.relinquishLeadership();
   }
 
   @Override
