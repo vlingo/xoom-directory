@@ -36,7 +36,9 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   private AttributesProtocol attributesClient;
   private boolean leader;
   private final Node localNode;
-  private final MulticastPublisherReader publisher;
+  private final int maxMessageSize;
+  private final Network network;
+  private MulticastPublisherReader publisher;
   private final Timing timing;
   
   public DirectoryServiceActor(
@@ -46,17 +48,9 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
           final Timing timing)
   throws Throwable {
     this.localNode = localNode;
+    this.network = network;
+    this.maxMessageSize = maxMessageSize;
     this.timing = timing;
-    
-    this.publisher =
-            new MulticastPublisherReader(
-                    "vlingo-directory-service",
-                    network.publisherGroup,
-                    network.incomingPort,
-                    maxMessageSize,
-                    timing.processingTimeout,
-                    selfAs(ChannelReaderConsumer.class),
-                    logger());
   }
 
   //=========================================
@@ -175,6 +169,24 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   }
 
   private void startProcessing() {
+    if (publisher == null) {
+      try {
+        this.publisher =
+                new MulticastPublisherReader(
+                        "vlingo-directory-service",
+                        network.publisherGroup,
+                        network.incomingPort,
+                        maxMessageSize,
+                        timing.processingTimeout,
+                        selfAs(ChannelReaderConsumer.class),
+                        logger());
+      } catch (Exception e) {
+        final String message = "DIRECTORY: Failed to create multicast publisher/reader because: " + e.getMessage();
+        logger().log(message, e);
+        throw new IllegalStateException(message, e);
+      }
+    }
+    
     if (cancellableMessageProcessing == null) {
       cancellableMessageProcessing =
               stage().scheduler().schedule(
@@ -195,9 +207,21 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   }
 
   private void stopProcessing() {
+    if (publisher != null) {
+      try {
+        publisher.close();
+      } catch (Throwable t) {
+        // ignore
+      } finally {
+        publisher = null;
+      }
+    }
+
     if (cancellableMessageProcessing != null) {
       try {
         cancellableMessageProcessing.cancel();
+      } catch (Throwable t) {
+        // ignore
       } finally {
         cancellableMessageProcessing = null;
       }
@@ -206,6 +230,8 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
     if (cancellablePublishing != null) {
       try {
         cancellablePublishing.cancel();
+      } catch (Throwable t) {
+        // ignore
       } finally {
         cancellablePublishing = null;
       }

@@ -1,0 +1,43 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
+package io.vlingo.directory.client;
+
+import java.util.function.Consumer;
+
+import io.vlingo.actors.Actor;
+import io.vlingo.actors.LocalMessage;
+import io.vlingo.actors.Mailbox;
+import io.vlingo.actors.Stoppable;
+
+public class DirectoryClient__Proxy implements DirectoryClient {
+  private final Actor actor;
+  private final Mailbox mailbox;
+
+  public DirectoryClient__Proxy(final Actor actor, final Mailbox mailbox) {
+    this.actor = actor;
+    this.mailbox = mailbox;
+  }
+
+
+  @Override
+  public boolean isStopped() {
+    return actor.isStopped();
+  }
+
+  @Override
+  public void stop() {
+    final Consumer<Stoppable> consumer = (actor) -> actor.stop();
+    mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, "stop()"));
+  }
+
+  @Override
+  public void register(final ServiceRegistrationInfo info) {
+    final Consumer<DirectoryClient> consumer = (actor) -> actor.register(info);
+    mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "register(ServiceRegistrationInfo)"));
+  }
+}
