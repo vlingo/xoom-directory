@@ -18,6 +18,8 @@ import io.vlingo.cluster.model.attribute.AttributeSet;
 import io.vlingo.cluster.model.attribute.AttributesProtocol;
 import io.vlingo.directory.model.message.RegisterService;
 import io.vlingo.directory.model.message.ServiceRegistered;
+import io.vlingo.directory.model.message.ServiceUnregistered;
+import io.vlingo.directory.model.message.UnregisterService;
 import io.vlingo.wire.channel.ChannelReaderConsumer;
 import io.vlingo.wire.message.RawMessage;
 import io.vlingo.wire.multicast.MulticastPublisherReader;
@@ -28,6 +30,8 @@ import io.vlingo.wire.node.Node;
 
 public class DirectoryServiceActor extends Actor implements DirectoryService, ChannelReaderConsumer, Scheduled {
   private static final String ServiceNamePrefix = "RegisteredService:";
+  private static final String UnregisteredServiceNamePrefix = "UnregisteredService:";
+  private static final String UnregisteredCount = "COUNT";
   
   private enum IntervalType { Processing, Publishing }
   
@@ -40,17 +44,20 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   private final Network network;
   private MulticastPublisherReader publisher;
   private final Timing timing;
+  private final int unpublishedNotifications;
   
   public DirectoryServiceActor(
           final Node localNode,
           final Network network,
           final int maxMessageSize,
-          final Timing timing)
+          final Timing timing,
+          final int unpublishedNotifications)
   throws Throwable {
     this.localNode = localNode;
     this.network = network;
     this.maxMessageSize = maxMessageSize;
     this.timing = timing;
+    this.unpublishedNotifications = unpublishedNotifications;
   }
 
   //=========================================
@@ -140,7 +147,14 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
         attributesClient.add(attributeSetName, fullAddress, fullAddress);
       }
     } else {
-      logger().log("DIRECTORY: RECEIVED UNKNOWN: " + incoming);
+      final UnregisterService unregisterService = UnregisterService.from(incoming);
+      if (unregisterService.isValid()) {
+        final String attributeSetName = ServiceNamePrefix + unregisterService.name.value();
+        attributesClient.removeAll(attributeSetName);
+        attributesClient.add(UnregisteredServiceNamePrefix + unregisterService.name.value(), UnregisteredCount, unpublishedNotifications);
+      } else {
+        logger().log("DIRECTORY: RECEIVED UNKNOWN: " + incoming);
+      }
     }
   }
 
@@ -148,14 +162,16 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   // internal implementation
   //====================================
 
-  private Name named(final String serviceName) {
-    return new Name(serviceName.substring(ServiceNamePrefix.length()));
+  private Name named(final String prefix, final String serviceName) {
+    return new Name(serviceName.substring(prefix.length()));
   }
 
   private void publishAllServices() {
     for (final AttributeSet set : attributesClient.all()) {
       if (set.name.startsWith(ServiceNamePrefix)) {
         publishService(set.name);
+      } else if (set.name.startsWith(UnregisteredServiceNamePrefix)) {
+        unpublishService(set.name);
       }
     }
   }
@@ -165,7 +181,19 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
     for (final Attribute<?> attribute : attributesClient.allOf(name)) {
       addresses.add(Address.from(attribute.value.toString(), AddressType.MAIN));
     }
-    publisher.send(RawMessage.from(0, 0, ServiceRegistered.as(named(name), addresses).toString()));
+    publisher.send(RawMessage.from(0, 0, ServiceRegistered.as(named(ServiceNamePrefix, name), addresses).toString()));
+  }
+
+  private void unpublishService(final String name) {
+    publisher.send(RawMessage.from(0, 0, ServiceUnregistered.as(named(UnregisteredServiceNamePrefix, name)).toString()));
+    
+    final Attribute<Integer> unregisteredNotificationsCount = attributesClient.attribute(name, UnregisteredCount);
+    final int count = unregisteredNotificationsCount.value - 1;
+    if (count - 1 <= 0) {
+      attributesClient.removeAll(name);
+    } else {
+      attributesClient.replace(name, UnregisteredCount, count);
+    }
   }
 
   private void startProcessing() {

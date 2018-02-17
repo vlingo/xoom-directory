@@ -21,12 +21,13 @@ public interface DirectoryService extends Startable, Stoppable {
           final Node localNode,
           final Network network,
           final int maxMessageSize,
-          final Timing timing) {
+          final Timing timing,
+          final int unpublishedNotifications) {
     
     final Definition definition =
             Definition.has(
                     DirectoryServiceActor.class,
-                    Definition.parameters(localNode, network, maxMessageSize, timing),
+                    Definition.parameters(localNode, network, maxMessageSize, timing, unpublishedNotifications),
                     "vlingo-directory-service");
     
     return stage.actorFor(definition, DirectoryService.class);

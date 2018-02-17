@@ -89,4 +89,9 @@ public class TestAttributesClient implements AttributesProtocol {
       }
     }    
   }
+
+  @Override
+  public <T> void removeAll(String attributeSetName) {
+    attributeSets.remove(attributeSetName);
+  }
 }

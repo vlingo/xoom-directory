@@ -9,5 +9,6 @@ package io.vlingo.directory.client;
 
 public interface ServiceDiscoveryInterest {
   boolean interestedIn(final String serviceName);
-  void inform(final ServiceRegistrationInfo discoveredService);
+  void informDiscovered(final ServiceRegistrationInfo discoveredService);
+  void informUnregistered(final String unregisteredServiceName);
 }

@@ -67,6 +67,43 @@ public class DirectoryServiceTest {
   }
   
   @Test
+  public void testShouldUnregister() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
+    
+    // directory assigned leadership
+    directory.actor().assignLeadership();
+    
+    final Location location1 = new Location("test-host1", 1234);
+    final ServiceRegistrationInfo info1 = new ServiceRegistrationInfo("test-service1", Arrays.asList(location1));
+    client1.actor().register(info1);
+    
+    final Location location2 = new Location("test-host2", 1234);
+    final ServiceRegistrationInfo info2 = new ServiceRegistrationInfo("test-service2", Arrays.asList(location2));
+    client2.actor().register(info2);
+    
+    final Location location3 = new Location("test-host3", 1234);
+    final ServiceRegistrationInfo info3 = new ServiceRegistrationInfo("test-service3", Arrays.asList(location3));
+    client3.actor().register(info3);
+
+    pause(1000);
+    
+    client1.actor().unregister(info1.name);
+
+    pause(500);
+    
+    for (final MockServiceDiscoveryInterest interest : Arrays.asList(interest2, interest3)) {
+      assertFalse(interest.servicesSeen.isEmpty());
+      assertTrue(interest.servicesSeen.contains(info1.name));
+      assertFalse(interest.discoveredServices.isEmpty());
+      assertTrue(interest.discoveredServices.contains(info1));
+      assertFalse(interest.unregisteredServices.isEmpty());
+      System.out.print(interest.unregisteredServices.toString());
+      assertTrue(interest.unregisteredServices.contains(info1.name));
+    }
+  }
+
+  @Test
   public void testShouldNotInformInterest() {
     directory.actor().start();
     directory.actor().use(new TestAttributesClient());
@@ -193,7 +230,7 @@ public class DirectoryServiceTest {
       assertTrue(interest.discoveredServices.contains(info3));
     }
   }
-  
+
   @Before
   public void setUp() {
     testWorld = TestWorld.start("test");
@@ -205,7 +242,7 @@ public class DirectoryServiceTest {
     directory = testWorld.actorFor(
             Definition.has(
                     DirectoryServiceActor.class,
-                    Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100, 100))),
+                    Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100, 100), 20)),
             DirectoryService.class);
     
     interest1 = new MockServiceDiscoveryInterest();
@@ -245,6 +282,10 @@ public class DirectoryServiceTest {
   }
   
   private void pause() {
-    try { Thread.sleep(1000); } catch (Exception e) { }
+    pause(1000);
+  }
+  
+  private void pause(final long milliseconds) {
+    try { Thread.sleep(milliseconds); } catch (Exception e) { }
   }
 }

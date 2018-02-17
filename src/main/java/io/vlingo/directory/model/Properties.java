@@ -74,6 +74,11 @@ public final class Properties {
     return interval;
   }
 
+  public final int directoryUnregisteredServiceNotifications() {
+    final int notifications = getInteger("directory.unregistered.service.notifications", 20);
+    return notifications;
+  }
+
   public final Boolean getBoolean(final String key, final Boolean defaultValue) {
     final String value = getString(key, defaultValue.toString());
     return Boolean.parseBoolean(value);

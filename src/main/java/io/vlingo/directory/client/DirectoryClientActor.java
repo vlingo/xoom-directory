@@ -16,6 +16,8 @@ import io.vlingo.actors.Stoppable;
 import io.vlingo.directory.client.ServiceRegistrationInfo.Location;
 import io.vlingo.directory.model.message.RegisterService;
 import io.vlingo.directory.model.message.ServiceRegistered;
+import io.vlingo.directory.model.message.ServiceUnregistered;
+import io.vlingo.directory.model.message.UnregisterService;
 import io.vlingo.wire.channel.ChannelReaderConsumer;
 import io.vlingo.wire.channel.SocketChannelWriter;
 import io.vlingo.wire.message.ByteBufferAllocator;
@@ -58,6 +60,12 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
     this.registerService = RawMessage.from(0, 0, converted.toString());
   }
 
+  @Override
+  public void unregister(final String serviceName) {
+    registerService = null;
+    unregisterService(Name.of(serviceName));
+  }
+
   //====================================
   // ChannelReaderConsumer
   //====================================
@@ -67,9 +75,14 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
     final String incoming = message.asTextMessage();
     final ServiceRegistered serviceRegistered = ServiceRegistered.from(incoming);
     if (serviceRegistered.isValid() && interest.interestedIn(serviceRegistered.name.value())) {
-      interest.inform(new ServiceRegistrationInfo(serviceRegistered.name.value(), Location.from(serviceRegistered.addresses)));
+      interest.informDiscovered(new ServiceRegistrationInfo(serviceRegistered.name.value(), Location.from(serviceRegistered.addresses)));
     } else {
-      manageDirectoryChannel(incoming);
+      final ServiceUnregistered serviceUnregistered = ServiceUnregistered.from(incoming);
+      if (serviceUnregistered.isValid()) {
+        interest.informUnregistered(serviceUnregistered.name.value());
+      } else {
+        manageDirectoryChannel(incoming);
+      }
     }
   }
 
@@ -118,6 +131,18 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
       final int actual = directoryChannel.write(registerService, buffer);
       if (actual != expected) {
         logger().log("DIRECTORY CLIENT: Did not send full service registration message: " + registerService.asTextMessage());
+      }
+    }
+  }
+
+  private void unregisterService(final Name serviceName) {
+    if (directoryChannel != null) {
+      final UnregisterService unregister = UnregisterService.as(serviceName);
+      final RawMessage unregisterServiceMessage = RawMessage.from(0, 0, unregister.toString());
+      final int expected = unregisterServiceMessage.totalLength();
+      final int actual = directoryChannel.write(unregisterServiceMessage, buffer);
+      if (actual != expected) {
+        logger().log("DIRECTORY CLIENT: Did not send full service unregister message: " + unregisterServiceMessage.asTextMessage());
       }
     }
   }

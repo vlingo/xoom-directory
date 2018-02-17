@@ -23,7 +23,6 @@ public class DirectoryClient__Proxy implements DirectoryClient {
     this.mailbox = mailbox;
   }
 
-
   @Override
   public boolean isStopped() {
     return actor.isStopped();
@@ -39,5 +38,11 @@ public class DirectoryClient__Proxy implements DirectoryClient {
   public void register(final ServiceRegistrationInfo info) {
     final Consumer<DirectoryClient> consumer = (actor) -> actor.register(info);
     mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "register(ServiceRegistrationInfo)"));
+  }
+
+  @Override
+  public void unregister(final String serviceName) {
+    final Consumer<DirectoryClient> consumer = (actor) -> actor.unregister(serviceName);
+    mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "unregister(String)"));
   }
 }

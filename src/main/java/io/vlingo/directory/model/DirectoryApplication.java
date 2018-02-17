@@ -35,8 +35,17 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
                     Properties.instance.directoryMessageProcessingInterval(),
                     Properties.instance.directoryMessageProcessingTimeout(),
                     Properties.instance.directoryMessagePublishingInterval());
+    
+    final int unpublishedNotifications = Properties.instance.directoryUnregisteredServiceNotifications();
 
-    this.directoryService = DirectoryService.instance(stageNamed("vlingo-directory"), localNode, network, maxMessageSize, timing);
+    this.directoryService =
+            DirectoryService.instance(
+                    stageNamed("vlingo-directory"),
+                    localNode,
+                    network,
+                    maxMessageSize,
+                    timing,
+                    unpublishedNotifications);
   }
 
   //====================================

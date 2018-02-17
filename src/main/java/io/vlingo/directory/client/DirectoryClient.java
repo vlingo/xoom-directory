@@ -45,4 +45,5 @@ public interface DirectoryClient extends Stoppable {
   }
   
   void register(final ServiceRegistrationInfo info);
+  void unregister(final String serviceName);
 }
