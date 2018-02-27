@@ -78,7 +78,7 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
       interest.informDiscovered(new ServiceRegistrationInfo(serviceRegistered.name.value(), Location.from(serviceRegistered.addresses)));
     } else {
       final ServiceUnregistered serviceUnregistered = ServiceUnregistered.from(incoming);
-      if (serviceUnregistered.isValid()) {
+      if (serviceUnregistered.isValid() && interest.interestedIn(serviceUnregistered.name.value())) {
         interest.informUnregistered(serviceUnregistered.name.value());
       } else {
         manageDirectoryChannel(incoming);

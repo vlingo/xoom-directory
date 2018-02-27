@@ -10,6 +10,7 @@ package io.vlingo.directory.model;
 import java.util.function.Consumer;
 
 import io.vlingo.actors.Actor;
+import io.vlingo.actors.DeadLetter;
 import io.vlingo.actors.LocalMessage;
 import io.vlingo.actors.Mailbox;
 import io.vlingo.actors.Startable;
@@ -32,31 +33,51 @@ public class DirectoryService__Proxy implements DirectoryService {
 
   @Override
   public void start() {
-    final Consumer<Startable> consumer = (actor) -> actor.start();
-    mailbox.send(new LocalMessage<Startable>(actor, Startable.class, consumer, "start()"));
+    if (!actor.isStopped()) {
+      final Consumer<Startable> consumer = (actor) -> actor.start();
+      mailbox.send(new LocalMessage<Startable>(actor, Startable.class, consumer, "start()"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "start()"));
+    }
   }
 
   @Override
   public void stop() {
-    final Consumer<Stoppable> consumer = (actor) -> actor.stop();
-    mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, "stop()"));
+    if (!actor.isStopped()) {
+      final Consumer<Stoppable> consumer = (actor) -> actor.stop();
+      mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, "stop()"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "stop()"));
+    }
   }
 
   @Override
   public void assignLeadership() {
-    final Consumer<DirectoryService> consumer = (actor) -> actor.assignLeadership();
-    mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "assignLeadership()"));
+    if (!actor.isStopped()) {
+      final Consumer<DirectoryService> consumer = (actor) -> actor.assignLeadership();
+      mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "assignLeadership()"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "assignLeadership()"));
+    }
   }
 
   @Override
   public void relinquishLeadership() {
-    final Consumer<DirectoryService> consumer = (actor) -> actor.relinquishLeadership();
-    mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "relinquishLeadership()"));
+    if (!actor.isStopped()) {
+      final Consumer<DirectoryService> consumer = (actor) -> actor.relinquishLeadership();
+      mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "relinquishLeadership()"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "relinquishLeadership()"));
+    }
   }
 
   @Override
   public void use(final AttributesProtocol client) {
-    final Consumer<DirectoryService> consumer = (actor) -> actor.use(client);
-    mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "use(AttributesProtocol)"));
+    if (!actor.isStopped()) {
+      final Consumer<DirectoryService> consumer = (actor) -> actor.use(client);
+      mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "use(AttributesProtocol)"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "use(AttributesProtocol)"));
+    }
   }
 }

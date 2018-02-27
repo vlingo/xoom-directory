@@ -10,6 +10,7 @@ package io.vlingo.directory.client;
 import java.util.function.Consumer;
 
 import io.vlingo.actors.Actor;
+import io.vlingo.actors.DeadLetter;
 import io.vlingo.actors.LocalMessage;
 import io.vlingo.actors.Mailbox;
 import io.vlingo.actors.Stoppable;
@@ -30,19 +31,31 @@ public class DirectoryClient__Proxy implements DirectoryClient {
 
   @Override
   public void stop() {
-    final Consumer<Stoppable> consumer = (actor) -> actor.stop();
-    mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, "stop()"));
+    if (!actor.isStopped()) {
+      final Consumer<Stoppable> consumer = (actor) -> actor.stop();
+      mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, "stop()"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "stop()"));
+    }
   }
 
   @Override
   public void register(final ServiceRegistrationInfo info) {
-    final Consumer<DirectoryClient> consumer = (actor) -> actor.register(info);
-    mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "register(ServiceRegistrationInfo)"));
+    if (!actor.isStopped()) {
+      final Consumer<DirectoryClient> consumer = (actor) -> actor.register(info);
+      mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "register(ServiceRegistrationInfo)"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "register(ServiceRegistrationInfo)"));
+    }
   }
 
   @Override
   public void unregister(final String serviceName) {
-    final Consumer<DirectoryClient> consumer = (actor) -> actor.unregister(serviceName);
-    mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "unregister(String)"));
+    if (!actor.isStopped()) {
+      final Consumer<DirectoryClient> consumer = (actor) -> actor.unregister(serviceName);
+      mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "unregister(String)"));
+    } else {
+      actor.deadLetters().failedDelivery(new DeadLetter(actor, "unregister(String)"));
+    }
   }
 }
