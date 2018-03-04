@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.testkit.TestActor;
+import io.vlingo.actors.testkit.TestUntil;
 import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.directory.client.DirectoryClient;
 import io.vlingo.directory.client.DirectoryClientActor;
@@ -56,9 +57,10 @@ public class DirectoryServiceTest {
     
     final Location location = new Location("test-host", 1234);
     final ServiceRegistrationInfo info = new ServiceRegistrationInfo("test-service", Arrays.asList(location));
-    client1.actor().register(info);
     
-    pause();
+    MockServiceDiscoveryInterest.interestsSeen = TestUntil.happenings(2);
+    client1.actor().register(info);
+    MockServiceDiscoveryInterest.interestsSeen.completes();
     
     assertFalse(interest1.servicesSeen.isEmpty());
     assertTrue(interest1.servicesSeen.contains("test-service"));
@@ -85,14 +87,13 @@ public class DirectoryServiceTest {
     final Location location3 = new Location("test-host3", 1234);
     final ServiceRegistrationInfo info3 = new ServiceRegistrationInfo("test-service3", Arrays.asList(location3));
     client3.actor().register(info3);
-
-    pause(1000);
+    pause();
     
     client1.actor().unregister(info1.name);
-
-    pause(500);
+    pause();
     
     for (final MockServiceDiscoveryInterest interest : Arrays.asList(interest2, interest3)) {
+      System.out.println("COUNT: " + (interest.servicesSeen.size() + interest.discoveredServices.size() + interest.unregisteredServices.size()));
       assertFalse(interest.servicesSeen.isEmpty());
       assertTrue(interest.servicesSeen.contains(info1.name));
       assertFalse(interest.discoveredServices.isEmpty());
