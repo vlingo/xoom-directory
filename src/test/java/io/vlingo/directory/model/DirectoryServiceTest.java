@@ -58,7 +58,7 @@ public class DirectoryServiceTest {
     final Location location = new Location("test-host", 1234);
     final ServiceRegistrationInfo info = new ServiceRegistrationInfo("test-service", Arrays.asList(location));
     
-    MockServiceDiscoveryInterest.interestsSeen = TestUntil.happenings(2);
+    MockServiceDiscoveryInterest.interestsSeen = TestUntil.happenings(6);
     client1.actor().register(info);
     MockServiceDiscoveryInterest.interestsSeen.completes();
     
@@ -246,7 +246,7 @@ public class DirectoryServiceTest {
                     Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100, 100), 20)),
             DirectoryService.class);
     
-    interest1 = new MockServiceDiscoveryInterest();
+    interest1 = new MockServiceDiscoveryInterest("interest1");
     
     client1 = testWorld.actorFor(
             Definition.has(
@@ -254,7 +254,7 @@ public class DirectoryServiceTest {
                     Definition.parameters(interest1, group, 1024, 50, 10)),
             DirectoryClient.class);
     
-    interest2 = new MockServiceDiscoveryInterest();
+    interest2 = new MockServiceDiscoveryInterest("interest2");
     
     client2 = testWorld.actorFor(
             Definition.has(
@@ -262,7 +262,7 @@ public class DirectoryServiceTest {
                     Definition.parameters(interest2, group, 1024, 50, 10)),
             DirectoryClient.class);
     
-    interest3 = new MockServiceDiscoveryInterest();
+    interest3 = new MockServiceDiscoveryInterest("interest3");
     
     client3 = testWorld.actorFor(
             Definition.has(

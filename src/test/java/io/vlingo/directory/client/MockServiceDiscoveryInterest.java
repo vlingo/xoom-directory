@@ -8,11 +8,13 @@ import io.vlingo.actors.testkit.TestUntil;
 public class MockServiceDiscoveryInterest implements ServiceDiscoveryInterest {
   public static TestUntil interestsSeen;
   
+  public String name;
   public List<ServiceRegistrationInfo> discoveredServices;
   public List<String> servicesSeen;
   public List<String> unregisteredServices;
   
-  public MockServiceDiscoveryInterest() {
+  public MockServiceDiscoveryInterest(final String name) {
+    this.name = name;
     discoveredServices = new ArrayList<>();
     servicesSeen = new ArrayList<>();
     unregisteredServices = new ArrayList<>();
@@ -38,7 +40,6 @@ public class MockServiceDiscoveryInterest implements ServiceDiscoveryInterest {
   @Override
   public void informUnregistered(final String unregisteredServiceName) {
     if (!unregisteredServices.contains(unregisteredServiceName)) {
-      System.out.println("informUnregistered: " + unregisteredServiceName);
       unregisteredServices.add(unregisteredServiceName);
       if (interestsSeen != null) interestsSeen.happened();
     }
