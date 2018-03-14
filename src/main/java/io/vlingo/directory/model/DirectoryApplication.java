@@ -40,7 +40,7 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
 
     this.directoryService =
             DirectoryService.instance(
-                    stageNamed("vlingo-directory"),
+                    stage(),
                     localNode,
                     network,
                     maxMessageSize,
