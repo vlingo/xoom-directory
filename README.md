@@ -1,4 +1,7 @@
 # vlingo-directory
+
+[![Build Status](https://travis-ci.org/vlingo/vlingo-directory.svg?branch=master)](https://travis-ci.org/vlingo/vlingo-directory)
+
 Service registration and discovery for the vlingo/platform.
 
 License (See LICENSE file for full license)
