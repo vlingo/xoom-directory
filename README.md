@@ -4,6 +4,16 @@
 
 Service registration and discovery for the vlingo/platform.
 
+### Bintray
+```xml
+<dependency>
+  <groupId>io.vlingo</groupId>
+  <artifactId>vlingo-directory</artifactId>
+  <version>0.5.1</version>
+  <type>pom</type>
+</dependency>
+```
+
 License (See LICENSE file for full license)
 -------------------------------------------
 Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
