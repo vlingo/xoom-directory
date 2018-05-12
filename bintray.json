@@ -1,0 +1,31 @@
+{
+    "package": {
+        "name": "vlingo-directory",
+        "repo": "vlingo-directory",
+        "subject": "vlingo-platform",
+        "desc": "Service registration and discovery for the vlingo/platform.",
+        "website_url": "https://github.com/vlingo/vlingo-directory",
+        "issue_tracker_url": "https://github.com/vlingo/vlingo-directory/issues",
+        "vcs_url": "https://github.com/vlingo/vlingo-directory.git",
+        "licenses": ["MPL-2.0"],
+        "public_download_numbers": true,
+        "public_stats": true
+    },
+
+    "version": {
+        "name": "master",
+        "gpgSign": false
+    },
+
+    "files": [
+        {
+            "includePattern": "target/(.*).jar",
+            "uploadPattern": "/vlingo-directory/master/$1.jar",
+            "matrixParams": {
+                "override": 1
+            }
+        }
+    ],
+
+    "publish": true
+}
