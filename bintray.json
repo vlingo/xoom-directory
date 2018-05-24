@@ -1,8 +1,8 @@
 {
     "package": {
         "name": "vlingo-directory",
-        "repo": "vlingo-directory",
-        "subject": "vlingo-platform",
+        "repo": "vlingo-platform-java",
+        "subject": "vlingo",
         "desc": "Service registration and discovery for the vlingo/platform.",
         "website_url": "https://github.com/vlingo/vlingo-directory",
         "issue_tracker_url": "https://github.com/vlingo/vlingo-directory/issues",
@@ -13,19 +13,25 @@
     },
 
     "version": {
-        "name": "master",
+        "name": "0.5.1",
         "gpgSign": false
     },
 
     "files": [
         {
             "includePattern": "target/(.*).jar",
-            "uploadPattern": "/io/vlingo/vlingo-directory/0.4.2/$1.jar",
+            "uploadPattern": "/io/vlingo/vlingo-directory/0.5.1/$1.jar",
             "matrixParams": {
                 "override": 1
             }
         },
-        {"includePattern": "pom.xml", "uploadPattern": "/io/vlingo/vlingo-directory/0.4.2/vlingo-directory-0.4.2.pom"}
+        {
+            "includePattern": "pom.xml",
+            "uploadPattern": "/io/vlingo/vlingo-directory/0.5.1/vlingo-directory-0.5.1.pom",
+            "matrixParams": {
+                "override": 1
+            }
+        }
     ],
 
     "publish": true

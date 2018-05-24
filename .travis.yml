@@ -18,3 +18,13 @@ before_install:
 
 script:
   - mvn install
+
+deploy:
+  provider: bintray
+  file: bintray.json
+  skip_cleanup: true
+  user: d-led
+  on:
+    branch: master
+  key:
+    secure: "0HhYQySezqfsFP1fsXnvELAcTgYKLOOvobGDMROk7TV7DU5fUGrDFKORQiNhYEB/2rxkPbhjggX5dIlaCY3hM5qduvVi62S0B62T10oRPwXSYSUu8bP6Gn1GVO9pVb/B/uZc9tJE3XbGdCoHULRq2rTKdvCmH6CSkhEkQg5TGZ5I2xaGJifkWvjy0cd15u+5gt/YqpD7NbpwUXph7Fdqp5oiEr97N1BeYZCP56YnMqYJEzS3C82gZikgj3UPu67e0oxYFro5Qr3gTI1r9IEBvZA25zivB2cYRNPz8p82opmBJSSduvffa0oVY5mTFbrqySOQCBUvVVbq6S7MgSviWAUZm1IXwJNArp1jksda3ZgSo0t4HOA22j+Kk3G0HzYwPloGM6ToC1SmlqQOR+aFqwZIUhxvO05g6NG1GNNcNNXkV6ShLC+U78F+2gzq4AmPq3N+rLj8T8rohwFyV945RxQpasWmup1v22kmhjeeCaoWe5qkEZJlNpqymy2ROHqGJGwrR18/MEBUpR8T/FepcORx29ZY14QNupf84LhxqRCDuc4C4eZirnzbllEGNaNnUqLTwde2IFi/CRTXCJ5uW0qBoBkanN6O9/0QN95CdZaLoF134JYuHrHzkmQEYEPUMvajl9clUL12LU1IFlgmHMhbgwSbifne2abYvmfL7oA="
