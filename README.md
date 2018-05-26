@@ -5,13 +5,32 @@
 Service registration and discovery for the vlingo/platform.
 
 ### Bintray
+
 ```xml
-<dependency>
-  <groupId>io.vlingo</groupId>
-  <artifactId>vlingo-directory</artifactId>
-  <version>0.5.1</version>
-  <type>pom</type>
-</dependency>
+  <repositories>
+    <repository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com/</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>io.vlingo</groupId>
+      <artifactId>vlingo-directory</artifactId>
+      <version>0.5.3</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+```
+
+```gradle
+dependencies {
+    compile 'io.vlingo:vlingo-directory:0.5.3'
+}
+
+repositories {
+    jcenter()
+}
 ```
 
 License (See LICENSE file for full license)
