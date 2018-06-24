@@ -8,7 +8,7 @@
 package io.vlingo.directory.model;
 
 import io.vlingo.cluster.model.application.ClusterApplicationAdapter;
-import io.vlingo.cluster.model.attribute.AttributesClient;
+import io.vlingo.cluster.model.attribute.AttributesProtocol;
 import io.vlingo.directory.model.DirectoryService.Network;
 import io.vlingo.directory.model.DirectoryService.Timing;
 import io.vlingo.wire.multicast.Group;
@@ -53,7 +53,7 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
   //====================================
 
   @Override
-  public void informAttributesClient(final AttributesClient client) {
+  public void informAttributesClient(final AttributesProtocol client) {
      logger().log("DIRECTORY: Attributes Client received.");
      
      directoryService.use(client);
