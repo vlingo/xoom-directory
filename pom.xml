@@ -1,18 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.vlingo</groupId>
   <artifactId>vlingo-directory</artifactId>
   <version>0.5.3</version>
-  
   <name>vlingo-directory</name>
   <url>http://maven.apache.org</url>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
-
   <build>
     <plugins>
       <plugin>
@@ -22,7 +19,6 @@
         <executions>
           <execution>
             <goals>
-              <!-- mvn exec:java -Dexec.args=directory1 (or directory2, directory3, etc) -->
               <goal>java</goal>
             </goals>
           </execution>
@@ -70,7 +66,6 @@
       </plugin>
     </plugins>
   </build>
-
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -81,31 +76,29 @@
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-common</artifactId>
-      <version>0.3.1</version>
+      <version>0.3.3</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-actors</artifactId>
-      <version>0.4.4</version>
+      <version>0.4.6</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-wire</artifactId>
-      <version>0.3.3</version>
+      <version>0.3.4</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-cluster</artifactId>
-      <version>0.3.3</version>
+      <version>0.3.4</version>
     </dependency>
   </dependencies>
-
   <distributionManagement>
     <repository>
-        <id>bintray-vlingo-vlingo-platform-java</id>
-        <name>vlingo-vlingo-platform-java</name>
-        <url>https://api.bintray.com/maven/vlingo/vlingo-platform-java/vlingo-directory/;publish=1</url>
+      <id>bintray-vlingo-vlingo-platform-java</id>
+      <name>vlingo-vlingo-platform-java</name>
+      <url>https://api.bintray.com/maven/vlingo/vlingo-platform-java/vlingo-directory/;publish=1</url>
     </repository>
   </distributionManagement>
-
 </project>
