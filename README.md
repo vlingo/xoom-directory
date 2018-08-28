@@ -17,7 +17,7 @@ Service registration and discovery for the vlingo/platform.
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-directory</artifactId>
-      <version>0.5.7</version>
+      <version>0.5.8</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -25,7 +25,7 @@ Service registration and discovery for the vlingo/platform.
 
 ```gradle
 dependencies {
-    compile 'io.vlingo:vlingo-directory:0.5.7'
+    compile 'io.vlingo:vlingo-directory:0.5.8'
 }
 
 repositories {
