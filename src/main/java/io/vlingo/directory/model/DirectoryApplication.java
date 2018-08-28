@@ -9,9 +9,6 @@ package io.vlingo.directory.model;
 
 import io.vlingo.cluster.model.application.ClusterApplicationAdapter;
 import io.vlingo.cluster.model.attribute.AttributesProtocol;
-import io.vlingo.directory.model.DirectoryService.Network;
-import io.vlingo.directory.model.DirectoryService.Timing;
-import io.vlingo.wire.multicast.Group;
 import io.vlingo.wire.node.Id;
 import io.vlingo.wire.node.Node;
 
@@ -22,30 +19,8 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
   
   public DirectoryApplication(final Node localNode) {
     this.localNode = localNode;
-    
-    final Network network =
-            new Network(
-                    new Group(Properties.instance.directoryGroupAddress(), Properties.instance.directoryGroupPort()),
-                    Properties.instance.directoryIncomingPort());
 
-    final int maxMessageSize = Properties.instance.directoryMessageBufferSize();
-
-    final Timing timing =
-            new Timing(
-                    Properties.instance.directoryMessageProcessingInterval(),
-                    Properties.instance.directoryMessageProcessingTimeout(),
-                    Properties.instance.directoryMessagePublishingInterval());
-    
-    final int unpublishedNotifications = Properties.instance.directoryUnregisteredServiceNotifications();
-
-    this.directoryService =
-            DirectoryService.instance(
-                    stage(),
-                    localNode,
-                    network,
-                    maxMessageSize,
-                    timing,
-                    unpublishedNotifications);
+    this.directoryService = DirectoryService.instance(stage(), localNode);
   }
 
   //====================================
