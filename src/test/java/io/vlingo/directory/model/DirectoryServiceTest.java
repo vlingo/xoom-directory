@@ -243,7 +243,7 @@ public class DirectoryServiceTest {
     directory = testWorld.actorFor(
             Definition.has(
                     DirectoryServiceActor.class,
-                    Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100, 100), 20)),
+                    Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100), 20)),
             DirectoryService.class);
     
     interest1 = new MockServiceDiscoveryInterest("interest1");

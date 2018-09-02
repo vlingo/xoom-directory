@@ -31,7 +31,6 @@ public interface DirectoryService extends Startable, Stoppable {
     final Timing timing =
             new Timing(
                     Properties.instance.directoryMessageProcessingInterval(),
-                    Properties.instance.directoryMessageProcessingTimeout(),
                     Properties.instance.directoryMessagePublishingInterval());
 
     final int unpublishedNotifications = Properties.instance.directoryUnregisteredServiceNotifications();
@@ -81,12 +80,10 @@ public interface DirectoryService extends Startable, Stoppable {
 
   public static class Timing {
     public final int processingInterval;
-    public final int processingTimeout;
     public final int publishingInterval;
     
-    public Timing(final int processingInterval, final int processingTimeout, final int publishingInterval) {
+    public Timing(final int processingInterval, final int publishingInterval) {
       this.processingInterval = processingInterval;
-      this.processingTimeout = processingTimeout;
       this.publishingInterval = publishingInterval;
     }
   }

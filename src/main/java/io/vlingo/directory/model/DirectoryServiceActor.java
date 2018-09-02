@@ -205,7 +205,6 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
                         network.publisherGroup,
                         network.incomingPort,
                         maxMessageSize,
-                        timing.processingTimeout,
                         selfAs(ChannelReaderConsumer.class),
                         logger());
       } catch (Exception e) {

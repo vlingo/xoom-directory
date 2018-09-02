@@ -64,11 +64,6 @@ public final class Properties {
     return interval;
   }
 
-  public int directoryMessageProcessingTimeout() {
-    final int timeout = getInteger("directory.message.processing.timeout", 10);
-    return timeout;
-  }
-
   public final int directoryMessagePublishingInterval() {
     final int interval = getInteger("directory.message.publishing.interval", 5000);
     return interval;
