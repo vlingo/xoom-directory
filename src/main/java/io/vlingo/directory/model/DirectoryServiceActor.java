@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.vlingo.actors.Actor;
-import io.vlingo.actors.Cancellable;
-import io.vlingo.actors.Scheduled;
 import io.vlingo.cluster.model.attribute.Attribute;
 import io.vlingo.cluster.model.attribute.AttributeSet;
 import io.vlingo.cluster.model.attribute.AttributesProtocol;
+import io.vlingo.common.Cancellable;
+import io.vlingo.common.Scheduled;
 import io.vlingo.directory.model.message.RegisterService;
 import io.vlingo.directory.model.message.ServiceRegistered;
 import io.vlingo.directory.model.message.ServiceUnregistered;
