@@ -41,7 +41,7 @@ public interface DirectoryClient extends Stoppable {
                     Definition.parameters(interest, directoryPublisherGroup, maxMessageSize, processingInterval, processingTimeout),
                     ClientName);
     
-    return stage.actorFor(definition, DirectoryClient.class);
+    return stage.actorFor(DirectoryClient.class, definition);
   }
   
   void register(final ServiceRegistrationInfo info);

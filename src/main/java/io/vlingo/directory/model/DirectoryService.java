@@ -61,7 +61,7 @@ public interface DirectoryService extends Startable, Stoppable {
                     Definition.parameters(localNode, network, maxMessageSize, timing, unpublishedNotifications),
                     "vlingo-directory-service");
     
-    return stage.actorFor(definition, DirectoryService.class);
+    return stage.actorFor(DirectoryService.class, definition);
   }
 
   public void assignLeadership();

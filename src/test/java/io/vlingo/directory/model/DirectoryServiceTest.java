@@ -241,34 +241,34 @@ public class DirectoryServiceTest {
     group = new Group("237.37.37.1", 37371);
     
     directory = testWorld.actorFor(
+            DirectoryService.class,
             Definition.has(
                     DirectoryServiceActor.class,
-                    Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100), 20)),
-            DirectoryService.class);
+                    Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100), 20)));
     
     interest1 = new MockServiceDiscoveryInterest("interest1");
     
     client1 = testWorld.actorFor(
+            DirectoryClient.class,
             Definition.has(
                     DirectoryClientActor.class,
-                    Definition.parameters(interest1, group, 1024, 50, 10)),
-            DirectoryClient.class);
+                    Definition.parameters(interest1, group, 1024, 50, 10)));
     
     interest2 = new MockServiceDiscoveryInterest("interest2");
     
     client2 = testWorld.actorFor(
+            DirectoryClient.class,
             Definition.has(
                     DirectoryClientActor.class,
-                    Definition.parameters(interest2, group, 1024, 50, 10)),
-            DirectoryClient.class);
+                    Definition.parameters(interest2, group, 1024, 50, 10)));
     
     interest3 = new MockServiceDiscoveryInterest("interest3");
     
     client3 = testWorld.actorFor(
+            DirectoryClient.class,
             Definition.has(
                     DirectoryClientActor.class,
-                    Definition.parameters(interest3, group, 1024, 50, 10)),
-            DirectoryClient.class);
+                    Definition.parameters(interest3, group, 1024, 50, 10)));
     
     interests = Arrays.asList(interest1, interest2, interest3);
   }
