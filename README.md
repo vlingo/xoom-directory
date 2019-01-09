@@ -1,6 +1,6 @@
 # vlingo-directory
 
-[![Javadocs](http://javadoc.io/badge/io.vlingo/vlingo-directory.svg?color=brightgreen)](http://javadoc.io/doc/io.vlingo/vlingo-directory) [![Build Status](https://travis-ci.org/vlingo/vlingo-directory.svg?branch=master)](https://travis-ci.org/vlingo/vlingo-directory) [ ![Download](https://api.bintray.com/packages/vlingo/vlingo-platform-java/vlingo-directory/images/download.svg) ](https://bintray.com/vlingo/vlingo-platform-java/vlingo-directory/_latestVersion)
+[![Javadocs](http://javadoc.io/badge/io.vlingo/vlingo-directory.svg?color=brightgreen)](http://javadoc.io/doc/io.vlingo/vlingo-directory) [![Build Status](https://travis-ci.org/vlingo/vlingo-directory.svg?branch=master)](https://travis-ci.org/vlingo/vlingo-directory) [ ![Download](https://api.bintray.com/packages/vlingo/vlingo-platform-java/vlingo-directory/images/download.svg) ](https://bintray.com/vlingo/vlingo-platform-java/vlingo-directory/_latestVersion) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/vlingo-platform-java/directory)
 
 Service registration and discovery for the vlingo/platform.
 
