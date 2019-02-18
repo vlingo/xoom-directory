@@ -27,7 +27,7 @@ import io.vlingo.wire.multicast.Group;
 import io.vlingo.wire.multicast.MulticastSubscriber;
 import io.vlingo.wire.node.Name;
 
-public class DirectoryClientActor extends Actor implements DirectoryClient, ChannelReaderConsumer, Scheduled, Stoppable {
+public class DirectoryClientActor extends Actor implements DirectoryClient, ChannelReaderConsumer, Scheduled<Object>, Stoppable {
   private final ByteBuffer buffer;
   private final Cancellable cancellable;
   private PublisherAvailability directory;
@@ -36,6 +36,7 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
   private RawMessage registerService;
   private final MulticastSubscriber subscriber;
   
+  @SuppressWarnings("unchecked")
   public DirectoryClientActor(
           final ServiceDiscoveryInterest interest,
           final Group directoryPublisherGroup,
@@ -91,7 +92,7 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
   //====================================
 
   @Override
-  public void intervalSignal(final Scheduled scheduled, final Object data) {
+  public void intervalSignal(final Scheduled<Object> scheduled, final Object data) {
     subscriber.probeChannel();
     
     registerService();
