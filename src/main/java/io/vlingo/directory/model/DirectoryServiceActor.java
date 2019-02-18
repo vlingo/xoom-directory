@@ -28,12 +28,10 @@ import io.vlingo.wire.node.AddressType;
 import io.vlingo.wire.node.Name;
 import io.vlingo.wire.node.Node;
 
-public class DirectoryServiceActor extends Actor implements DirectoryService, ChannelReaderConsumer, Scheduled {
+public class DirectoryServiceActor extends Actor implements DirectoryService, ChannelReaderConsumer, Scheduled<IntervalType> {
   private static final String ServiceNamePrefix = "RegisteredService:";
   private static final String UnregisteredServiceNamePrefix = "UnregisteredService:";
   private static final String UnregisteredCount = "COUNT";
-  
-  private enum IntervalType { Processing, Publishing }
   
   private Cancellable cancellableMessageProcessing;
   private Cancellable cancellablePublishing;
@@ -88,10 +86,10 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   //=========================================
 
   @Override
-  public void intervalSignal(final Scheduled scheduled, final Object data) {
+  public void intervalSignal(final Scheduled<IntervalType> scheduled, final IntervalType data) {
     if (!leader) return;
     
-    switch ((IntervalType) data) {
+    switch (data) {
     case Processing:
       publisher.processChannel();
       break;
@@ -196,6 +194,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void startProcessing() {
     if (publisher == null) {
       try {
