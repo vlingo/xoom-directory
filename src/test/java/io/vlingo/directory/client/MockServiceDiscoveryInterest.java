@@ -1,47 +1,78 @@
 package io.vlingo.directory.client;
 
+import io.vlingo.actors.testkit.AccessSafely;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import io.vlingo.actors.testkit.TestUntil;
-
 public class MockServiceDiscoveryInterest implements ServiceDiscoveryInterest {
-  public static TestUntil interestsSeen;
-  
+
+  private final AccessSafely result;
   public String name;
-  public List<ServiceRegistrationInfo> discoveredServices;
-  public List<String> servicesSeen;
-  public List<String> unregisteredServices;
-  
-  public MockServiceDiscoveryInterest(final String name) {
+  private List<ServiceRegistrationInfo> discoveredServices;
+  private List<String> servicesSeen;
+  private List<String> unregisteredServices;
+
+  public MockServiceDiscoveryInterest(final String name, int times) {
     this.name = name;
     discoveredServices = new ArrayList<>();
     servicesSeen = new ArrayList<>();
     unregisteredServices = new ArrayList<>();
+
+    result = AccessSafely.afterCompleting(times);
+    result.writingWith("discoveredServices", (final ServiceRegistrationInfo discoveredService) -> {
+      if (!this.discoveredServices.contains(discoveredService)) {
+        this.discoveredServices.add(discoveredService);
+      }
+    });
+    result.readingWith("discoveredServices", () -> discoveredServices);
+
+    result.writingWith("servicesSeen", (String serviceName) -> {
+      if (!this.servicesSeen.contains(serviceName)) {
+        this.servicesSeen.add(serviceName);
+      }
+    });
+    result.readingWith("servicesSeen", () -> servicesSeen);
+
+    result.writingWith("unregisteredServices", (String unregisteredServiceName) -> {
+      if (!this.unregisteredServices.contains(unregisteredServiceName)) {
+        this.unregisteredServices.add(unregisteredServiceName);
+      }
+    });
+    result.readingWith("unregisteredServices", () -> unregisteredServices);
   }
-  
+
   @Override
   public boolean interestedIn(final String serviceName) {
-    if (!servicesSeen.contains(serviceName)) {
-      servicesSeen.add(serviceName);
-      if (interestsSeen != null) interestsSeen.happened();
-    }
-    return true;
+      if (!this.servicesSeen.contains(serviceName)) {
+          this.result.writeUsing("servicesSeen", serviceName);
+      }
+      return true;
   }
 
   @Override
   public void informDiscovered(final ServiceRegistrationInfo discoveredService) {
-    if (!discoveredServices.contains(discoveredService)) {
-      discoveredServices.add(discoveredService);
-      if (interestsSeen != null) interestsSeen.happened();
-    }
+      if (!this.discoveredServices.contains(discoveredService)) {
+          this.result.writeUsing("discoveredServices", discoveredService);
+      }
   }
 
   @Override
   public void informUnregistered(final String unregisteredServiceName) {
-    if (!unregisteredServices.contains(unregisteredServiceName)) {
-      unregisteredServices.add(unregisteredServiceName);
-      if (interestsSeen != null) interestsSeen.happened();
-    }
+      if (!this.unregisteredServices.contains(unregisteredServiceName)) {
+          this.result.writeUsing("unregisteredServices", unregisteredServiceName);
+      }
+  }
+
+  public List<ServiceRegistrationInfo> getDiscoveredServices() {
+    return result.readFrom("discoveredServices");
+  }
+
+  public List<String> getServicesSeen() {
+    return result.readFrom("servicesSeen");
+  }
+
+  public List<String> getUnregisteredServices() {
+    return result.readFrom("unregisteredServices");
   }
 }
