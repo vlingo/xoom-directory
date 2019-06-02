@@ -90,6 +90,35 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>1.23.0</version>
+        <configuration>
+          <java>
+            <includes>
+              <!-- Include all property files in "resource" folders under "src" -->
+              <include>src/main/java/io/vlingo/**/*.java</include>
+              <include>src/test/java/io/vlingo/**/*.java</include>
+            </includes>
+            <eclipse>
+              <file>${basedir}/resources/eclipse-java-formatter.xml</file>
+            </eclipse>
+            <trimTrailingWhitespace/>
+            <removeUnusedImports/>
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <!-- Runs in compile phase to fail fast in case of formatting issues.-->
+            <id>spotless-check</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <repositories>

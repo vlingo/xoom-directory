@@ -14,9 +14,10 @@
 
 * It would be really nice if your followed the basic code format used prevelently.
 
-#### **Please don't reformat existing code**
+#### **Code format**
 
-* Just because you don't like a given code style doesn't mean you have the authority to change it. Cosmeic changes add zero to little value.
+* Import the code format settings from `resources/eclipse-java-formatter.xml` file.
+* Before committing, run `mvn spotless:check`. Note the build will fail if there are any files that are not formatted accordingly. 
 
 #### **New features and enhancements**
 
