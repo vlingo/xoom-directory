@@ -21,7 +21,7 @@ public class UnregisterServiceTest {
   @Test
   public void testMessage() {
     final UnregisterService unregisterService = UnregisterService.as(Name.of("test-service"));
-    
+
     assertEquals(Name.of("test-service"), unregisterService.name);
     assertEquals(textMessage, unregisterService.toString());
   }
@@ -29,7 +29,7 @@ public class UnregisterServiceTest {
   @Test
   public void testValidity() {
     final UnregisterService unregisterService = UnregisterService.as(Name.of("test-service"));
-    
+
     assertTrue(unregisterService.isValid());
     assertFalse(UnregisterService.from("blah").isValid());
     assertTrue(UnregisterService.from(textMessage).isValid());

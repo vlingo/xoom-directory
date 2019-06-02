@@ -25,26 +25,20 @@ public class ServiceRegisteredTest {
 
   @Test
   public void testMessage() {
-    final ServiceRegistered serviceRegistered =
-            new ServiceRegistered(
-                    Name.of("test-service"),
-                    Arrays.asList(
-                            Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN),
-                            Address.from(Host.of("1.2.3.45"), 222, AddressType.MAIN)));
-    
+    final ServiceRegistered serviceRegistered = new ServiceRegistered(Name.of("test-service"),
+            Arrays.asList(Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN),
+                    Address.from(Host.of("1.2.3.45"), 222, AddressType.MAIN)));
+
     assertEquals(2, serviceRegistered.addresses.size());
     assertEquals(textMessage, serviceRegistered.toString());
   }
-  
+
   @Test
   public void testValidity() {
-    final ServiceRegistered serviceRegistered =
-            new ServiceRegistered(
-                    Name.of("test-service"),
-                    Arrays.asList(
-                            Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN),
-                            Address.from(Host.of("1.2.3.45"), 222, AddressType.MAIN)));
-    
+    final ServiceRegistered serviceRegistered = new ServiceRegistered(Name.of("test-service"),
+            Arrays.asList(Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN),
+                    Address.from(Host.of("1.2.3.45"), 222, AddressType.MAIN)));
+
     assertTrue(serviceRegistered.isValid());
     assertFalse(ServiceRegistered.from("blah").isValid());
     assertTrue(ServiceRegistered.from(textMessage).isValid());

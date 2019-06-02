@@ -13,9 +13,9 @@ import io.vlingo.wire.node.Name;
 
 public class UnregisterService implements Message {
   public static final String TypeName = "UNREGSRVC";
-  
+
   public final Name name;
-  
+
   public static UnregisterService from(final String content) {
     if (content.startsWith(TypeName)) {
       final Name name = MessagePartsBuilder.nameFrom(content);
@@ -23,25 +23,25 @@ public class UnregisterService implements Message {
     }
     return new UnregisterService(Name.NO_NODE_NAME);
   }
-  
+
   public static UnregisterService as(final Name name) {
     return new UnregisterService(name);
   }
-  
+
   public UnregisterService(final Name name) {
     this.name = name;
   }
-  
+
   public boolean isValid() {
     return !name.hasNoName();
   }
-  
+
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
 
     builder.append(TypeName).append("\n").append("nm=").append(name.value());
-    
+
     return builder.toString();
   }
 }

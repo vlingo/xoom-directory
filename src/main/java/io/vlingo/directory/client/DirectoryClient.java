@@ -18,32 +18,24 @@ public interface DirectoryClient extends Stoppable {
   public static final int DefaultProcessingInterval = 1000;
   public static final int DefaultProcessingTimeout = 10;
 
-  public static DirectoryClient instance(
-          final Stage stage,
-          final ServiceDiscoveryInterest interest,
+  public static DirectoryClient instance(final Stage stage, final ServiceDiscoveryInterest interest,
           final Group directoryPublisherGroup) {
-    
-    return instance(stage, interest, directoryPublisherGroup,
-            DefaultMaxMessageSize, DefaultProcessingInterval, DefaultProcessingTimeout);
+
+    return instance(stage, interest, directoryPublisherGroup, DefaultMaxMessageSize, DefaultProcessingInterval,
+            DefaultProcessingTimeout);
   }
 
-  public static DirectoryClient instance(
-          final Stage stage,
-          final ServiceDiscoveryInterest interest,
-          final Group directoryPublisherGroup,
-          final int maxMessageSize,
-          final long processingInterval,
+  public static DirectoryClient instance(final Stage stage, final ServiceDiscoveryInterest interest,
+          final Group directoryPublisherGroup, final int maxMessageSize, final long processingInterval,
           final int processingTimeout) {
-    
-    final Definition definition =
-            Definition.has(
-                    DirectoryClientActor.class,
-                    Definition.parameters(interest, directoryPublisherGroup, maxMessageSize, processingInterval, processingTimeout),
-                    ClientName);
-    
+
+    final Definition definition = Definition.has(DirectoryClientActor.class, Definition.parameters(interest,
+            directoryPublisherGroup, maxMessageSize, processingInterval, processingTimeout), ClientName);
+
     return stage.actorFor(DirectoryClient.class, definition);
   }
-  
+
   void register(final ServiceRegistrationInfo info);
+
   void unregister(final String serviceName);
 }

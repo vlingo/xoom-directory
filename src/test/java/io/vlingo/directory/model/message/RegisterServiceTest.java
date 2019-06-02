@@ -23,22 +23,18 @@ public class RegisterServiceTest {
 
   @Test
   public void testMessage() {
-    final RegisterService registerService =
-            new RegisterService(
-                    Name.of("test-service"),
-                    Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN));
-    
+    final RegisterService registerService = new RegisterService(Name.of("test-service"),
+            Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN));
+
     assertEquals(1, registerService.addresses.size());
     assertEquals(textMessage, registerService.toString());
   }
-  
+
   @Test
   public void testValidity() {
-    final RegisterService registerService =
-            new RegisterService(
-                    Name.of("test-service"),
-                    Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN));
-    
+    final RegisterService registerService = new RegisterService(Name.of("test-service"),
+            Address.from(Host.of("1.2.3.4"), 111, AddressType.MAIN));
+
     assertTrue(registerService.isValid());
     assertFalse(RegisterService.from("blah").isValid());
     assertTrue(RegisterService.from(textMessage).isValid());

@@ -32,8 +32,11 @@ public class DirectoryService__Proxy implements DirectoryService {
   public void conclude() {
     if (!actor.isStopped()) {
       final Consumer<Stoppable> consumer = (actor) -> actor.conclude();
-      if (mailbox.isPreallocated()) { mailbox.send(actor, Stoppable.class, consumer, null, representationConclude0); }
-      else { mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, representationConclude0)); }
+      if (mailbox.isPreallocated()) {
+        mailbox.send(actor, Stoppable.class, consumer, null, representationConclude0);
+      } else {
+        mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, representationConclude0));
+      }
     } else {
       actor.deadLetters().failedDelivery(new DeadLetter(actor, representationConclude0));
     }
@@ -78,7 +81,8 @@ public class DirectoryService__Proxy implements DirectoryService {
   public void relinquishLeadership() {
     if (!actor.isStopped()) {
       final Consumer<DirectoryService> consumer = (actor) -> actor.relinquishLeadership();
-      mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "relinquishLeadership()"));
+      mailbox.send(
+              new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "relinquishLeadership()"));
     } else {
       actor.deadLetters().failedDelivery(new DeadLetter(actor, "relinquishLeadership()"));
     }
@@ -88,7 +92,8 @@ public class DirectoryService__Proxy implements DirectoryService {
   public void use(final AttributesProtocol client) {
     if (!actor.isStopped()) {
       final Consumer<DirectoryService> consumer = (actor) -> actor.use(client);
-      mailbox.send(new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "use(AttributesProtocol)"));
+      mailbox.send(
+              new LocalMessage<DirectoryService>(actor, DirectoryService.class, consumer, "use(AttributesProtocol)"));
     } else {
       actor.deadLetters().failedDelivery(new DeadLetter(actor, "use(AttributesProtocol)"));
     }

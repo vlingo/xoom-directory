@@ -17,61 +17,45 @@ import io.vlingo.wire.node.Node;
 
 public interface DirectoryService extends Startable, Stoppable {
 
-  public static DirectoryService instance(
-          final Stage stage,
-          final Node localNode) {
+  public static DirectoryService instance(final Stage stage, final Node localNode) {
 
-    final Network network =
-            new Network(
-                    new Group(Properties.instance.directoryGroupAddress(), Properties.instance.directoryGroupPort()),
-                    Properties.instance.directoryIncomingPort());
+    final Network network = new Network(
+            new Group(Properties.instance.directoryGroupAddress(), Properties.instance.directoryGroupPort()),
+            Properties.instance.directoryIncomingPort());
 
     final int maxMessageSize = Properties.instance.directoryMessageBufferSize();
 
-    final Timing timing =
-            new Timing(
-                    Properties.instance.directoryMessageProcessingInterval(),
-                    Properties.instance.directoryMessagePublishingInterval());
+    final Timing timing = new Timing(Properties.instance.directoryMessageProcessingInterval(),
+            Properties.instance.directoryMessagePublishingInterval());
 
     final int unpublishedNotifications = Properties.instance.directoryUnregisteredServiceNotifications();
 
-    final DirectoryService directoryService =
-            DirectoryService.instance(
-                    stage,
-                    localNode,
-                    network,
-                    maxMessageSize,
-                    timing,
-                    unpublishedNotifications);
+    final DirectoryService directoryService = DirectoryService.instance(stage, localNode, network, maxMessageSize,
+            timing, unpublishedNotifications);
 
     return directoryService;
   }
 
-  public static DirectoryService instance(
-          final Stage stage,
-          final Node localNode,
-          final Network network,
-          final int maxMessageSize,
-          final Timing timing,
-          final int unpublishedNotifications) {
-    
-    final Definition definition =
-            Definition.has(
-                    DirectoryServiceActor.class,
-                    Definition.parameters(localNode, network, maxMessageSize, timing, unpublishedNotifications),
-                    "vlingo-directory-service");
-    
+  public static DirectoryService instance(final Stage stage, final Node localNode, final Network network,
+          final int maxMessageSize, final Timing timing, final int unpublishedNotifications) {
+
+    final Definition definition = Definition.has(DirectoryServiceActor.class,
+            Definition.parameters(localNode, network, maxMessageSize, timing, unpublishedNotifications),
+            "vlingo-directory-service");
+
     return stage.actorFor(DirectoryService.class, definition);
   }
 
   public void assignLeadership();
+
   public void relinquishLeadership();
+
   public void use(final AttributesProtocol client);
-  
+
   public static class Network {
     public final Group publisherGroup;
     public final int incomingPort;
-    
+
     public Network(final Group publisherGroup, final int incomingPort) {
       this.publisherGroup = publisherGroup;
       this.incomingPort = incomingPort;
@@ -81,7 +65,7 @@ public interface DirectoryService extends Startable, Stoppable {
   public static class Timing {
     public final int processingInterval;
     public final int publishingInterval;
-    
+
     public Timing(final int processingInterval, final int publishingInterval) {
       this.processingInterval = processingInterval;
       this.publishingInterval = publishingInterval;

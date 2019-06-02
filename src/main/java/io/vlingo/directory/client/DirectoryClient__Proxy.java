@@ -30,8 +30,11 @@ public class DirectoryClient__Proxy implements DirectoryClient {
   public void conclude() {
     if (!actor.isStopped()) {
       final Consumer<Stoppable> consumer = (actor) -> actor.conclude();
-      if (mailbox.isPreallocated()) { mailbox.send(actor, Stoppable.class, consumer, null, representationConclude0); }
-      else { mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, representationConclude0)); }
+      if (mailbox.isPreallocated()) {
+        mailbox.send(actor, Stoppable.class, consumer, null, representationConclude0);
+      } else {
+        mailbox.send(new LocalMessage<Stoppable>(actor, Stoppable.class, consumer, representationConclude0));
+      }
     } else {
       actor.deadLetters().failedDelivery(new DeadLetter(actor, representationConclude0));
     }
@@ -56,7 +59,8 @@ public class DirectoryClient__Proxy implements DirectoryClient {
   public void register(final ServiceRegistrationInfo info) {
     if (!actor.isStopped()) {
       final Consumer<DirectoryClient> consumer = (actor) -> actor.register(info);
-      mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer, "register(ServiceRegistrationInfo)"));
+      mailbox.send(new LocalMessage<DirectoryClient>(actor, DirectoryClient.class, consumer,
+              "register(ServiceRegistrationInfo)"));
     } else {
       actor.deadLetters().failedDelivery(new DeadLetter(actor, "register(ServiceRegistrationInfo)"));
     }

@@ -13,11 +13,11 @@ import io.vlingo.cluster.model.attribute.TrackedAttribute;
 
 public class TestAttributesClient implements AttributesProtocol {
   private final Map<String, AttributeSet> attributeSets;
-  
+
   public TestAttributesClient() {
     attributeSets = new HashMap<>();
   }
-  
+
   @Override
   public <T> void add(final String attributeSetName, final String attributeName, final T value) {
     AttributeSet set = attributeSets.get(attributeSetName);
@@ -63,13 +63,13 @@ public class TestAttributesClient implements AttributesProtocol {
   @Override
   public <T> void replace(String attributeSetName, String attributeName, T value) {
     final AttributeSet set = attributeSets.get(attributeSetName);
-    
+
     if (!set.isNone()) {
       final TrackedAttribute tracked = set.attributeNamed(attributeName);
-      
+
       if (tracked.isPresent()) {
         final Attribute<T> other = Attribute.from(attributeName, value);
-        
+
         if (!tracked.sameAs(other)) {
           set.replace(tracked.replacingValueWith(other));
         }
@@ -80,14 +80,14 @@ public class TestAttributesClient implements AttributesProtocol {
   @Override
   public <T> void remove(String attributeSetName, String attributeName) {
     final AttributeSet set = attributeSets.get(attributeSetName);
-    
+
     if (!set.isNone()) {
       final TrackedAttribute tracked = set.attributeNamed(attributeName);
-      
+
       if (tracked.isPresent()) {
         set.remove(tracked.attribute);
       }
-    }    
+    }
   }
 
   @Override

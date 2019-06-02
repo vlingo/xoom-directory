@@ -27,7 +27,8 @@ import io.vlingo.wire.multicast.Group;
 import io.vlingo.wire.multicast.MulticastSubscriber;
 import io.vlingo.wire.node.Name;
 
-public class DirectoryClientActor extends Actor implements DirectoryClient, ChannelReaderConsumer, Scheduled<Object>, Stoppable {
+public class DirectoryClientActor extends Actor
+        implements DirectoryClient, ChannelReaderConsumer, Scheduled<Object>, Stoppable {
   private final ByteBuffer buffer;
   private final Cancellable cancellable;
   private PublisherAvailability directory;
@@ -35,25 +36,21 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
   private final ServiceDiscoveryInterest interest;
   private RawMessage registerService;
   private final MulticastSubscriber subscriber;
-  
+
   @SuppressWarnings("unchecked")
-  public DirectoryClientActor(
-          final ServiceDiscoveryInterest interest,
-          final Group directoryPublisherGroup,
-          final int maxMessageSize,
-          final long processingInterval,
-          final int processingTimeout)
-  throws Exception {
+  public DirectoryClientActor(final ServiceDiscoveryInterest interest, final Group directoryPublisherGroup,
+          final int maxMessageSize, final long processingInterval, final int processingTimeout) throws Exception {
     this.interest = interest;
     this.buffer = ByteBufferAllocator.allocate(maxMessageSize);
-    this.subscriber = new MulticastSubscriber(ClientName, directoryPublisherGroup, maxMessageSize, processingTimeout, logger());
+    this.subscriber = new MulticastSubscriber(ClientName, directoryPublisherGroup, maxMessageSize, processingTimeout,
+            logger());
     this.subscriber.openFor(selfAs(ChannelReaderConsumer.class));
     this.cancellable = stage().scheduler().schedule(selfAs(Scheduled.class), null, 0, processingInterval);
   }
 
-  //====================================
+  // ====================================
   // DirectoryClient
-  //====================================
+  // ====================================
 
   @Override
   public void register(final ServiceRegistrationInfo info) {
@@ -67,16 +64,17 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
     unregisterService(Name.of(serviceName));
   }
 
-  //====================================
+  // ====================================
   // ChannelReaderConsumer
-  //====================================
+  // ====================================
 
   @Override
   public void consume(final RawMessage message) {
     final String incoming = message.asTextMessage();
     final ServiceRegistered serviceRegistered = ServiceRegistered.from(incoming);
     if (serviceRegistered.isValid() && interest.interestedIn(serviceRegistered.name.value())) {
-      interest.informDiscovered(new ServiceRegistrationInfo(serviceRegistered.name.value(), Location.from(serviceRegistered.addresses)));
+      interest.informDiscovered(
+              new ServiceRegistrationInfo(serviceRegistered.name.value(), Location.from(serviceRegistered.addresses)));
     } else {
       final ServiceUnregistered serviceUnregistered = ServiceUnregistered.from(incoming);
       if (serviceUnregistered.isValid() && interest.interestedIn(serviceUnregistered.name.value())) {
@@ -87,31 +85,31 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
     }
   }
 
-  //====================================
+  // ====================================
   // Scheduled
-  //====================================
+  // ====================================
 
   @Override
   public void intervalSignal(final Scheduled<Object> scheduled, final Object data) {
     subscriber.probeChannel();
-    
+
     registerService();
   }
 
-  //====================================
+  // ====================================
   // Stoppable
-  //====================================
+  // ====================================
 
   @Override
   public void stop() {
     this.cancellable.cancel();
-    
+
     super.stop();
   }
 
-  //====================================
+  // ====================================
   // internal implementation
-  //====================================
+  // ====================================
 
   private void manageDirectoryChannel(final String maybePublisherAvailability) {
     final PublisherAvailability publisherAvailability = PublisherAvailability.from(maybePublisherAvailability);
@@ -131,7 +129,8 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
       final int expected = registerService.totalLength();
       final int actual = directoryChannel.write(registerService, buffer);
       if (actual != expected) {
-        logger().log("DIRECTORY CLIENT: Did not send full service registration message: " + registerService.asTextMessage());
+        logger().log(
+                "DIRECTORY CLIENT: Did not send full service registration message: " + registerService.asTextMessage());
       }
     }
   }
@@ -143,7 +142,8 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
       final int expected = unregisterServiceMessage.totalLength();
       final int actual = directoryChannel.write(unregisterServiceMessage, buffer);
       if (actual != expected) {
-        logger().log("DIRECTORY CLIENT: Did not send full service unregister message: " + unregisterServiceMessage.asTextMessage());
+        logger().log("DIRECTORY CLIENT: Did not send full service unregister message: "
+                + unregisterServiceMessage.asTextMessage());
       }
     }
   }

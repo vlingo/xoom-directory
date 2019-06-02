@@ -18,20 +18,20 @@ import io.vlingo.wire.node.Host;
 public final class ServiceRegistrationInfo {
   public final String name;
   public final Collection<Location> locations;
-  
+
   public ServiceRegistrationInfo(final String name, final Collection<Location> locations) {
     this.name = name;
     this.locations = locations;
   }
-  
+
   @Override
   public boolean equals(final Object other) {
     if (other == null || other.getClass() != ServiceRegistrationInfo.class) {
       return false;
     }
-    
+
     final ServiceRegistrationInfo otherInfo = (ServiceRegistrationInfo) other;
-    
+
     return this.name.equals(otherInfo.name) && this.locations.equals(otherInfo.locations);
   }
 
@@ -44,7 +44,7 @@ public final class ServiceRegistrationInfo {
     static Location from(final Address address) {
       return new Location(address.hostName(), address.port());
     }
-    
+
     static Collection<Location> from(final Collection<Address> addresses) {
       final List<Location> locations = new ArrayList<>(addresses.size());
       for (final Address address : addresses) {
@@ -52,7 +52,7 @@ public final class ServiceRegistrationInfo {
       }
       return locations;
     }
-    
+
     static Collection<Address> toAddresses(final Collection<Location> locations) {
       final List<Address> addresses = new ArrayList<>(locations.size());
       for (final Location location : locations) {
@@ -63,7 +63,7 @@ public final class ServiceRegistrationInfo {
 
     public final String address;
     public final int port;
-    
+
     public Location(final String address, final int port) {
       this.address = address;
       this.port = port;
@@ -74,9 +74,9 @@ public final class ServiceRegistrationInfo {
       if (other == null || other.getClass() != Location.class) {
         return false;
       }
-      
+
       final Location otherLocation = (Location) other;
-      
+
       return this.address.equals(otherLocation.address) && this.port == otherLocation.port;
     }
 

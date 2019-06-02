@@ -28,11 +28,12 @@ import io.vlingo.wire.node.AddressType;
 import io.vlingo.wire.node.Name;
 import io.vlingo.wire.node.Node;
 
-public class DirectoryServiceActor extends Actor implements DirectoryService, ChannelReaderConsumer, Scheduled<IntervalType> {
+public class DirectoryServiceActor extends Actor
+        implements DirectoryService, ChannelReaderConsumer, Scheduled<IntervalType> {
   private static final String ServiceNamePrefix = "RegisteredService:";
   private static final String UnregisteredServiceNamePrefix = "UnregisteredService:";
   private static final String UnregisteredCount = "COUNT";
-  
+
   private Cancellable cancellableMessageProcessing;
   private Cancellable cancellablePublishing;
   private AttributesProtocol attributesClient;
@@ -43,14 +44,9 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   private MulticastPublisherReader publisher;
   private final Timing timing;
   private final int unpublishedNotifications;
-  
-  public DirectoryServiceActor(
-          final Node localNode,
-          final Network network,
-          final int maxMessageSize,
-          final Timing timing,
-          final int unpublishedNotifications)
-  throws Throwable {
+
+  public DirectoryServiceActor(final Node localNode, final Network network, final int maxMessageSize,
+          final Timing timing, final int unpublishedNotifications) throws Throwable {
     this.localNode = localNode;
     this.network = network;
     this.maxMessageSize = maxMessageSize;
@@ -58,9 +54,9 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
     this.unpublishedNotifications = unpublishedNotifications;
   }
 
-  //=========================================
+  // =========================================
   // DirectoryService
-  //=========================================
+  // =========================================
 
   @Override
   public void assignLeadership() {
@@ -74,21 +70,20 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
     stopProcessing();
   }
 
-
   @Override
   public void use(final AttributesProtocol client) {
     this.attributesClient = client;
   }
 
-  
-  //=========================================
+  // =========================================
   // Scheduled
-  //=========================================
+  // =========================================
 
   @Override
   public void intervalSignal(final Scheduled<IntervalType> scheduled, final IntervalType data) {
-    if (!leader) return;
-    
+    if (!leader)
+      return;
+
     switch (data) {
     case Processing:
       publisher.processChannel();
@@ -100,43 +95,43 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
     }
   }
 
-  //=========================================
+  // =========================================
   // Startable
-  //=========================================
+  // =========================================
 
   @Override
   public void start() {
     logger().log("DIRECTORY: Starting...");
     logger().log("DIRECTORY: Waiting to gain leadership...");
-    
+
     super.start();
   }
 
-  //=========================================
+  // =========================================
   // Stoppable
-  //=========================================
+  // =========================================
 
   @Override
   public void stop() {
     logger().log("DIRECTORY: stopping on node: " + localNode);
-    
+
     stopProcessing();
-    
+
     if (publisher != null) {
       publisher.close();
     }
-    
+
     super.stop();
   }
 
-  //====================================
+  // ====================================
   // ChannelReaderConsumer
-  //====================================
+  // ====================================
 
   @Override
   public void consume(final RawMessage message) {
     final String incoming = message.asTextMessage();
-    
+
     final RegisterService registerService = RegisterService.from(incoming);
     if (registerService.isValid()) {
       final String attributeSetName = ServiceNamePrefix + registerService.name.value();
@@ -149,16 +144,17 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
       if (unregisterService.isValid()) {
         final String attributeSetName = ServiceNamePrefix + unregisterService.name.value();
         attributesClient.removeAll(attributeSetName);
-        attributesClient.add(UnregisteredServiceNamePrefix + unregisterService.name.value(), UnregisteredCount, unpublishedNotifications);
+        attributesClient.add(UnregisteredServiceNamePrefix + unregisterService.name.value(), UnregisteredCount,
+                unpublishedNotifications);
       } else {
         logger().log("DIRECTORY: RECEIVED UNKNOWN: " + incoming);
       }
     }
   }
 
-  //====================================
+  // ====================================
   // internal implementation
-  //====================================
+  // ====================================
 
   private Name named(final String prefix, final String serviceName) {
     return new Name(serviceName.substring(prefix.length()));
@@ -183,8 +179,9 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   }
 
   private void unpublishService(final String name) {
-    publisher.send(RawMessage.from(0, 0, ServiceUnregistered.as(named(UnregisteredServiceNamePrefix, name)).toString()));
-    
+    publisher
+            .send(RawMessage.from(0, 0, ServiceUnregistered.as(named(UnregisteredServiceNamePrefix, name)).toString()));
+
     final Attribute<Integer> unregisteredNotificationsCount = attributesClient.attribute(name, UnregisteredCount);
     final int count = unregisteredNotificationsCount.value - 1;
     if (count - 1 <= 0) {
@@ -198,37 +195,23 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   private void startProcessing() {
     if (publisher == null) {
       try {
-        this.publisher =
-                new MulticastPublisherReader(
-                        "vlingo-directory-service",
-                        network.publisherGroup,
-                        network.incomingPort,
-                        maxMessageSize,
-                        selfAs(ChannelReaderConsumer.class),
-                        logger());
+        this.publisher = new MulticastPublisherReader("vlingo-directory-service", network.publisherGroup,
+                network.incomingPort, maxMessageSize, selfAs(ChannelReaderConsumer.class), logger());
       } catch (Exception e) {
         final String message = "DIRECTORY: Failed to create multicast publisher/reader because: " + e.getMessage();
         logger().log(message, e);
         throw new IllegalStateException(message, e);
       }
     }
-    
+
     if (cancellableMessageProcessing == null) {
-      cancellableMessageProcessing =
-              stage().scheduler().schedule(
-                      selfAs(Scheduled.class),
-                      IntervalType.Processing,
-                      0,
-                      timing.processingInterval);
+      cancellableMessageProcessing = stage().scheduler().schedule(selfAs(Scheduled.class), IntervalType.Processing, 0,
+              timing.processingInterval);
     }
-    
+
     if (cancellablePublishing == null) {
-      cancellablePublishing =
-              stage().scheduler().schedule(
-                      selfAs(Scheduled.class),
-                      IntervalType.Publishing,
-                      0,
-                      timing.publishingInterval);
+      cancellablePublishing = stage().scheduler().schedule(selfAs(Scheduled.class), IntervalType.Publishing, 0,
+              timing.publishingInterval);
     }
   }
 
@@ -252,7 +235,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
         cancellableMessageProcessing = null;
       }
     }
-    
+
     if (cancellablePublishing != null) {
       try {
         cancellablePublishing.cancel();

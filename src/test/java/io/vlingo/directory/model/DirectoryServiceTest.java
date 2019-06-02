@@ -35,282 +35,273 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DirectoryServiceTest {
-    private TestActor<DirectoryService> directory;
-    private Group group;
-    private TestWorld testWorld;
+  private TestActor<DirectoryService> directory;
+  private Group group;
+  private TestWorld testWorld;
 
-    @Test
-    public void testShouldInformInterest() {
-        directory.actor().start();
-        directory.actor().use(new TestAttributesClient());
+  @Test
+  public void testShouldInformInterest() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
 
-        // directory assigned leadership
-        directory.actor().assignLeadership();
+    // directory assigned leadership
+    directory.actor().assignLeadership();
 
-        final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host", "test-service");
+    final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host", "test-service");
 
-        final MockServiceDiscoveryInterest interest = new MockServiceDiscoveryInterest("interest1", 2);
-        final TestActor<DirectoryClient> client = getClient(interest);
+    final MockServiceDiscoveryInterest interest = new MockServiceDiscoveryInterest("interest1", 2);
+    final TestActor<DirectoryClient> client = getClient(interest);
 
-        try {
-            client.actor().register(info);
+    try {
+      client.actor().register(info);
 
-            assertFalse(interest.getServicesSeen().isEmpty());
-            assertTrue(interest.getServicesSeen().contains(info.name));
-            assertFalse(interest.getDiscoveredServices().isEmpty());
-            assertTrue(interest.getDiscoveredServices().contains(info));
-        } finally {
-            stopClient(client);
-        }
+      assertFalse(interest.getServicesSeen().isEmpty());
+      assertTrue(interest.getServicesSeen().contains(info.name));
+      assertFalse(interest.getDiscoveredServices().isEmpty());
+      assertTrue(interest.getDiscoveredServices().contains(info));
+    } finally {
+      stopClient(client);
+    }
+  }
+
+  @Test
+  public void testShouldNotInformInterest() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
+
+    // directory NOT assigned leadership
+    directory.actor().relinquishLeadership(); // actually never had leadership, but be explicit and prove no harm
+
+    final ServiceRegistrationInfo registrationInfo = getServiceRegistrationInfo("test-host", "test-service");
+    final MockServiceDiscoveryInterest interest = new MockServiceDiscoveryInterest("interest1", 0);
+    final TestActor<DirectoryClient> client = getClient(interest);
+
+    try {
+      client.actor().register(registrationInfo);
+
+      pause();
+
+      assertTrue(interest.getServicesSeen().isEmpty());
+      assertFalse(interest.getServicesSeen().contains(registrationInfo.name));
+      assertTrue(interest.getDiscoveredServices().isEmpty());
+      assertFalse(interest.getDiscoveredServices().contains(registrationInfo));
+    } finally {
+      stopClient(client);
+    }
+  }
+
+  @Test
+  public void testShouldUnregister() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
+
+    // directory assigned leadership
+    directory.actor().assignLeadership();
+
+    int nrClients = 3;
+
+    List<TestActor<DirectoryClient>> clients = new ArrayList<>(nrClients);
+    List<MockServiceDiscoveryInterest> interests = new ArrayList<>(nrClients);
+
+    for (int i = 0; i < nrClients; i++) {
+      final MockServiceDiscoveryInterest interest1 = new MockServiceDiscoveryInterest("interest" + i, 2 * nrClients);
+      final TestActor<DirectoryClient> client1 = getClient(interest1);
+      clients.add(client1);
+      interests.add(interest1);
     }
 
-    @Test
-    public void testShouldNotInformInterest() {
-        directory.actor().start();
-        directory.actor().use(new TestAttributesClient());
+    List<ServiceRegistrationInfo> registrationInfos = new ArrayList<>(nrClients);
 
-        // directory NOT assigned leadership
-        directory.actor().relinquishLeadership(); // actually never had leadership, but be explicit and prove no harm
-
-        final ServiceRegistrationInfo registrationInfo = getServiceRegistrationInfo("test-host", "test-service");
-        final MockServiceDiscoveryInterest interest = new MockServiceDiscoveryInterest("interest1", 0);
-        final TestActor<DirectoryClient> client = getClient(interest);
-
-        try {
-            client.actor().register(registrationInfo);
-
-            pause();
-
-            assertTrue(interest.getServicesSeen().isEmpty());
-            assertFalse(interest.getServicesSeen().contains(registrationInfo.name));
-            assertTrue(interest.getDiscoveredServices().isEmpty());
-            assertFalse(interest.getDiscoveredServices().contains(registrationInfo));
-        } finally {
-            stopClient(client);
-        }
+    for (int i = 0; i < nrClients; i++) {
+      final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host" + i, "test-service" + i);
+      registrationInfos.add(info);
+      clients.get(i).actor().register(info);
     }
 
+    try {
+      assertRegistered(interests, registrationInfos);
 
-    @Test
-    public void testShouldUnregister() {
-        directory.actor().start();
-        directory.actor().use(new TestAttributesClient());
+      // Unregister first service
+      final ServiceRegistrationInfo unregisteredInfo = registrationInfos.get(0);
+      clients.get(0).actor().unregister(unregisteredInfo.name);
+      pause();
 
-        // directory assigned leadership
-        directory.actor().assignLeadership();
+      for (final MockServiceDiscoveryInterest interest : interests.subList(1, nrClients)) {
+        assertEquals(3, interest.getServicesSeen().size());
+        assertFalse(interest.getServicesSeen().isEmpty());
+        assertTrue(interest.getServicesSeen().contains(unregisteredInfo.name));
+        assertEquals(3, interest.getDiscoveredServices().size());
+        assertFalse(interest.getDiscoveredServices().isEmpty());
+        assertTrue(interest.getDiscoveredServices().contains(unregisteredInfo));
+        assertEquals(1, interest.getUnregisteredServices().size());
+        assertFalse(interest.getUnregisteredServices().isEmpty());
+        assertTrue(interest.getUnregisteredServices().contains(unregisteredInfo.name));
+      }
+    } finally {
+      clients.forEach(this::stopClient);
+    }
+  }
 
-        int nrClients = 3;
+  @Test
+  public void testAlteredLeadership() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
 
-        List<TestActor<DirectoryClient>> clients = new ArrayList<>(nrClients);
-        List<MockServiceDiscoveryInterest> interests = new ArrayList<>(nrClients);
+    // START directory assigned leadership
+    directory.actor().assignLeadership();
 
-        for (int i = 0; i < nrClients; i++) {
-            final MockServiceDiscoveryInterest interest1 = new MockServiceDiscoveryInterest("interest" + i, 2 * nrClients);
-            final TestActor<DirectoryClient> client1 = getClient(interest1);
-            clients.add(client1);
-            interests.add(interest1);
-        }
+    int nrClients = 3;
 
-        List<ServiceRegistrationInfo> registrationInfos = new ArrayList<>(nrClients);
+    List<TestActor<DirectoryClient>> clients = new ArrayList<>(nrClients);
+    List<MockServiceDiscoveryInterest> interests = new ArrayList<>(nrClients);
 
-        for (int i = 0; i < nrClients; i++) {
-            final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host" + i, "test-service" + i);
-            registrationInfos.add(info);
-            clients.get(i).actor().register(info);
-        }
-
-        try {
-            assertRegistered(interests, registrationInfos);
-
-            //Unregister first service
-            final ServiceRegistrationInfo unregisteredInfo = registrationInfos.get(0);
-            clients.get(0).actor().unregister(unregisteredInfo.name);
-            pause();
-
-            for (final MockServiceDiscoveryInterest interest : interests.subList(1, nrClients)) {
-                assertEquals(3, interest.getServicesSeen().size());
-                assertFalse(interest.getServicesSeen().isEmpty());
-                assertTrue(interest.getServicesSeen().contains(unregisteredInfo.name));
-                assertEquals(3, interest.getDiscoveredServices().size());
-                assertFalse(interest.getDiscoveredServices().isEmpty());
-                assertTrue(interest.getDiscoveredServices().contains(unregisteredInfo));
-                assertEquals(1, interest.getUnregisteredServices().size());
-                assertFalse(interest.getUnregisteredServices().isEmpty());
-                assertTrue(interest.getUnregisteredServices().contains(unregisteredInfo.name));
-            }
-        } finally {
-            clients.forEach(this::stopClient);
-        }
+    for (int i = 0; i < nrClients; i++) {
+      final MockServiceDiscoveryInterest interest1 = new MockServiceDiscoveryInterest("interest" + i, 2 * nrClients);
+      final TestActor<DirectoryClient> client1 = getClient(interest1);
+      clients.add(client1);
+      interests.add(interest1);
     }
 
+    List<ServiceRegistrationInfo> registrationInfos = new ArrayList<>(nrClients);
+    try {
+      for (int i = 0; i < nrClients; i++) {
+        final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host" + i, "test-service" + i);
+        registrationInfos.add(info);
+        clients.get(i).actor().register(info);
+      }
 
-    @Test
-    public void testAlteredLeadership() {
-        directory.actor().start();
-        directory.actor().use(new TestAttributesClient());
+      pause();
 
-        // START directory assigned leadership
-        directory.actor().assignLeadership();
+      assertRegistered(interests, registrationInfos);
 
-        int nrClients = 3;
+      // ALTER directory relinquished leadership
+      directory.actor().relinquishLeadership();
+      pause();
+      for (final MockServiceDiscoveryInterest interest : interests) {
+        interest.getServicesSeen().clear();
+        interest.getDiscoveredServices().clear();
+      }
 
-        List<TestActor<DirectoryClient>> clients = new ArrayList<>(nrClients);
-        List<MockServiceDiscoveryInterest> interests = new ArrayList<>(nrClients);
+      pause();
 
-        for (int i = 0; i < nrClients; i++) {
-            final MockServiceDiscoveryInterest interest1 = new MockServiceDiscoveryInterest("interest" + i, 2 * nrClients);
-            final TestActor<DirectoryClient> client1 = getClient(interest1);
-            clients.add(client1);
-            interests.add(interest1);
-        }
+      assertNotRegistered(interests, registrationInfos);
 
-        List<ServiceRegistrationInfo> registrationInfos = new ArrayList<>(nrClients);
-        try {
-            for (int i = 0; i < nrClients; i++) {
-                final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host" + i, "test-service" + i);
-                registrationInfos.add(info);
-                clients.get(i).actor().register(info);
-            }
+      // ALTER directory assigned leadership
+      directory.actor().assignLeadership();
+      pause();
+      for (final MockServiceDiscoveryInterest interest : interests) {
+        interest.getServicesSeen().clear();
+        interest.getDiscoveredServices().clear();
+      }
 
-            pause();
+      pause();
 
-            assertRegistered(interests, registrationInfos);
+      assertRegistered(interests, registrationInfos);
+    } finally {
+      clients.forEach(this::stopClient);
+    }
+  }
 
-            // ALTER directory relinquished leadership
-            directory.actor().relinquishLeadership();
-            pause();
-            for (final MockServiceDiscoveryInterest interest : interests) {
-                interest.getServicesSeen().clear();
-                interest.getDiscoveredServices().clear();
-            }
+  @Test
+  public void testRegisterDiscoverMultiple() {
+    directory.actor().start();
+    directory.actor().use(new TestAttributesClient());
+    directory.actor().assignLeadership();
 
-            pause();
+    int nrClients = 3;
 
-            assertNotRegistered(interests, registrationInfos);
+    List<TestActor<DirectoryClient>> clients = new ArrayList<>(nrClients);
+    List<MockServiceDiscoveryInterest> interests = new ArrayList<>(nrClients);
 
-            // ALTER directory assigned leadership
-            directory.actor().assignLeadership();
-            pause();
-            for (final MockServiceDiscoveryInterest interest : interests) {
-                interest.getServicesSeen().clear();
-                interest.getDiscoveredServices().clear();
-            }
-
-            pause();
-
-            assertRegistered(interests, registrationInfos);
-        } finally {
-            clients.forEach(this::stopClient);
-        }
+    for (int i = 0; i < nrClients; i++) {
+      final MockServiceDiscoveryInterest interest1 = new MockServiceDiscoveryInterest("interest" + i, 2 * nrClients);
+      final TestActor<DirectoryClient> client1 = getClient(interest1);
+      clients.add(client1);
+      interests.add(interest1);
     }
 
+    List<ServiceRegistrationInfo> registrationInfos = new ArrayList<>(nrClients);
 
-    @Test
-    public void testRegisterDiscoverMultiple() {
-        directory.actor().start();
-        directory.actor().use(new TestAttributesClient());
-        directory.actor().assignLeadership();
-
-        int nrClients = 3;
-
-        List<TestActor<DirectoryClient>> clients = new ArrayList<>(nrClients);
-        List<MockServiceDiscoveryInterest> interests = new ArrayList<>(nrClients);
-
-        for (int i = 0; i < nrClients; i++) {
-            final MockServiceDiscoveryInterest interest1 = new MockServiceDiscoveryInterest("interest" + i, 2 * nrClients);
-            final TestActor<DirectoryClient> client1 = getClient(interest1);
-            clients.add(client1);
-            interests.add(interest1);
-        }
-
-        List<ServiceRegistrationInfo> registrationInfos = new ArrayList<>(nrClients);
-
-        for (int i = 0; i < nrClients; i++) {
-            final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host" + i, "test-service" + i);
-            registrationInfos.add(info);
-            clients.get(i).actor().register(info);
-        }
-
-        try {
-            assertRegistered(interests, registrationInfos);
-        } finally {
-            clients.forEach(this::stopClient);
-        }
+    for (int i = 0; i < nrClients; i++) {
+      final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host" + i, "test-service" + i);
+      registrationInfos.add(info);
+      clients.get(i).actor().register(info);
     }
 
-
-    @Before
-    public void setUp() {
-        testWorld = TestWorld.start("test");
-
-        Node node = Node.with(Id.of(1), Name.of("node1"), Host.of("localhost"), 37371, 37372);
-
-        group = new Group("237.37.37.1", 37371);
-
-        directory = testWorld.actorFor(
-                DirectoryService.class,
-                Definition.has(
-                        DirectoryServiceActor.class,
-                        Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100), 20)));
-
+    try {
+      assertRegistered(interests, registrationInfos);
+    } finally {
+      clients.forEach(this::stopClient);
     }
+  }
 
-    @After
-    public void tearDown() {
-        directory.actor().stop();
-        testWorld.terminate();
+  @Before
+  public void setUp() {
+    testWorld = TestWorld.start("test");
+
+    Node node = Node.with(Id.of(1), Name.of("node1"), Host.of("localhost"), 37371, 37372);
+
+    group = new Group("237.37.37.1", 37371);
+
+    directory = testWorld.actorFor(DirectoryService.class, Definition.has(DirectoryServiceActor.class,
+            Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100), 20)));
+
+  }
+
+  @After
+  public void tearDown() {
+    directory.actor().stop();
+    testWorld.terminate();
+  }
+
+  private TestActor<DirectoryClient> getClient(MockServiceDiscoveryInterest interest) {
+    return testWorld.actorFor(DirectoryClient.class,
+            Definition.has(DirectoryClientActor.class, Definition.parameters(interest, group, 1024, 50, 10)));
+  }
+
+  private ServiceRegistrationInfo getServiceRegistrationInfo(String s, String s2) {
+    final Location location = new Location(s, 1234);
+    return new ServiceRegistrationInfo(s2, Collections.singletonList(location));
+  }
+
+  private void assertRegistered(List<MockServiceDiscoveryInterest> interests,
+          List<ServiceRegistrationInfo> registrationInfos) {
+    for (final MockServiceDiscoveryInterest interest : interests) {
+      assertFalse(interest.getServicesSeen().isEmpty());
+      assertFalse(interest.getDiscoveredServices().isEmpty());
+
+      registrationInfos.forEach(info -> {
+        assertTrue(interest.getServicesSeen().contains(info.name));
+        assertTrue(interest.getDiscoveredServices().contains(info));
+      });
     }
+  }
 
+  private void assertNotRegistered(List<MockServiceDiscoveryInterest> interests,
+          List<ServiceRegistrationInfo> registrationInfos) {
+    for (final MockServiceDiscoveryInterest interest : interests) {
+      assertTrue(interest.getServicesSeen().isEmpty());
+      assertTrue(interest.getDiscoveredServices().isEmpty());
 
-    private TestActor<DirectoryClient> getClient(MockServiceDiscoveryInterest interest) {
-        return testWorld.actorFor(
-                DirectoryClient.class,
-                Definition.has(
-                        DirectoryClientActor.class,
-                        Definition.parameters(interest, group, 1024, 50, 10)));
+      registrationInfos.forEach(info -> {
+        assertFalse(interest.getServicesSeen().contains(info.name));
+        assertFalse(interest.getDiscoveredServices().contains(info));
+      });
     }
-    
-    private ServiceRegistrationInfo getServiceRegistrationInfo(String s, String s2) {
-        final Location location = new Location(s, 1234);
-        return new ServiceRegistrationInfo(s2, Collections.singletonList(location));
+  }
+
+  private void stopClient(TestActor<DirectoryClient> client) {
+    client.actor().stop();
+  }
+
+  private void pause() {
+    pause(1000);
+  }
+
+  private void pause(final long milliseconds) {
+    try {
+      Thread.sleep(milliseconds);
+    } catch (Exception e) {
     }
-
-    private void assertRegistered(List<MockServiceDiscoveryInterest> interests, List<ServiceRegistrationInfo> registrationInfos) {
-        for (final MockServiceDiscoveryInterest interest : interests) {
-            assertFalse(interest.getServicesSeen().isEmpty());
-            assertFalse(interest.getDiscoveredServices().isEmpty());
-
-            registrationInfos.forEach(info -> {
-                assertTrue(interest.getServicesSeen().contains(info.name));
-                assertTrue(interest.getDiscoveredServices().contains(info));
-            });
-        }
-    }
-
-    private void assertNotRegistered(List<MockServiceDiscoveryInterest> interests, List<ServiceRegistrationInfo> registrationInfos) {
-        for (final MockServiceDiscoveryInterest interest : interests) {
-            assertTrue(interest.getServicesSeen().isEmpty());
-            assertTrue(interest.getDiscoveredServices().isEmpty());
-
-            registrationInfos.forEach(info -> {
-                assertFalse(interest.getServicesSeen().contains(info.name));
-                assertFalse(interest.getDiscoveredServices().contains(info));
-            });
-        }
-    }
-
-    private void stopClient(TestActor<DirectoryClient> client) {
-        client.actor().stop();
-    }
-
-    private void pause() {
-        pause(1000);
-    }
-
-    private void pause(final long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (Exception e) {
-        }
-    }
+  }
 }

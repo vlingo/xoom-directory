@@ -35,22 +35,25 @@ public final class Properties {
   protected static Properties openForTest(java.util.Properties properties) {
     return new Properties(properties);
   }
-  
+
   public String directoryGroupAddress() {
     final String address = getString("directory.group.address", "");
-    if (address.isEmpty()) throw new IllegalStateException("Must define a directory group address in properties file.");
+    if (address.isEmpty())
+      throw new IllegalStateException("Must define a directory group address in properties file.");
     return address;
   }
-  
+
   public int directoryGroupPort() {
     final int port = getInteger("directory.group.port", -1);
-    if (port == -1) throw new IllegalStateException("Must define a directory group port in properties file.");
+    if (port == -1)
+      throw new IllegalStateException("Must define a directory group port in properties file.");
     return port;
   }
 
   public int directoryIncomingPort() {
     final int port = getInteger("directory.incoming.port", -1);
-    if (port == -1) throw new IllegalStateException("Must define a directory incoming port in properties file.");
+    if (port == -1)
+      throw new IllegalStateException("Must define a directory incoming port in properties file.");
     return port;
   }
 
@@ -92,9 +95,9 @@ public final class Properties {
     // assertions in each accessor
 
     directoryGroupAddress();
-    
+
     directoryGroupPort();
-    
+
     directoryIncomingPort();
   }
 

@@ -44,24 +44,24 @@ public class MockServiceDiscoveryInterest implements ServiceDiscoveryInterest {
 
   @Override
   public boolean interestedIn(final String serviceName) {
-      if (!this.servicesSeen.contains(serviceName)) {
-          this.result.writeUsing("servicesSeen", serviceName);
-      }
-      return true;
+    if (!this.servicesSeen.contains(serviceName)) {
+      this.result.writeUsing("servicesSeen", serviceName);
+    }
+    return true;
   }
 
   @Override
   public void informDiscovered(final ServiceRegistrationInfo discoveredService) {
-      if (!this.discoveredServices.contains(discoveredService)) {
-          this.result.writeUsing("discoveredServices", discoveredService);
-      }
+    if (!this.discoveredServices.contains(discoveredService)) {
+      this.result.writeUsing("discoveredServices", discoveredService);
+    }
   }
 
   @Override
   public void informUnregistered(final String unregisteredServiceName) {
-      if (!this.unregisteredServices.contains(unregisteredServiceName)) {
-          this.result.writeUsing("unregisteredServices", unregisteredServiceName);
-      }
+    if (!this.unregisteredServices.contains(unregisteredServiceName)) {
+      this.result.writeUsing("unregisteredServices", unregisteredServiceName);
+    }
   }
 
   public List<ServiceRegistrationInfo> getDiscoveredServices() {
