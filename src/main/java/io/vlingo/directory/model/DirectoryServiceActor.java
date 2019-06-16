@@ -7,9 +7,6 @@
 
 package io.vlingo.directory.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.vlingo.actors.Actor;
 import io.vlingo.cluster.model.attribute.Attribute;
 import io.vlingo.cluster.model.attribute.AttributeSet;
@@ -27,6 +24,9 @@ import io.vlingo.wire.node.Address;
 import io.vlingo.wire.node.AddressType;
 import io.vlingo.wire.node.Name;
 import io.vlingo.wire.node.Node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DirectoryServiceActor extends Actor implements DirectoryService, ChannelReaderConsumer, Scheduled<IntervalType> {
   private static final String ServiceNamePrefix = "RegisteredService:";
@@ -106,8 +106,8 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
 
   @Override
   public void start() {
-    logger().log("DIRECTORY: Starting...");
-    logger().log("DIRECTORY: Waiting to gain leadership...");
+    logger().info("DIRECTORY: Starting...");
+    logger().info("DIRECTORY: Waiting to gain leadership...");
     
     super.start();
   }
@@ -118,7 +118,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
 
   @Override
   public void stop() {
-    logger().log("DIRECTORY: stopping on node: " + localNode);
+    logger().info("DIRECTORY: stopping on node: " + localNode);
     
     stopProcessing();
     
@@ -151,7 +151,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
         attributesClient.removeAll(attributeSetName);
         attributesClient.add(UnregisteredServiceNamePrefix + unregisterService.name.value(), UnregisteredCount, unpublishedNotifications);
       } else {
-        logger().log("DIRECTORY: RECEIVED UNKNOWN: " + incoming);
+        logger().warn("DIRECTORY: RECEIVED UNKNOWN: " + incoming);
       }
     }
   }
@@ -208,7 +208,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
                         logger());
       } catch (Exception e) {
         final String message = "DIRECTORY: Failed to create multicast publisher/reader because: " + e.getMessage();
-        logger().log(message, e);
+        logger().error(message, e);
         throw new IllegalStateException(message, e);
       }
     }
