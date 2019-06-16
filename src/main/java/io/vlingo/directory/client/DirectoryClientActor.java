@@ -7,8 +7,6 @@
 
 package io.vlingo.directory.client;
 
-import java.nio.ByteBuffer;
-
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.Stoppable;
 import io.vlingo.common.Cancellable;
@@ -26,6 +24,8 @@ import io.vlingo.wire.message.RawMessage;
 import io.vlingo.wire.multicast.Group;
 import io.vlingo.wire.multicast.MulticastSubscriber;
 import io.vlingo.wire.node.Name;
+
+import java.nio.ByteBuffer;
 
 public class DirectoryClientActor extends Actor implements DirectoryClient, ChannelReaderConsumer, Scheduled<Object>, Stoppable {
   private final ByteBuffer buffer;
@@ -131,7 +131,7 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
       final int expected = registerService.totalLength();
       final int actual = directoryChannel.write(registerService, buffer);
       if (actual != expected) {
-        logger().log("DIRECTORY CLIENT: Did not send full service registration message: " + registerService.asTextMessage());
+        logger().warn("DIRECTORY CLIENT: Did not send full service registration message: " + registerService.asTextMessage());
       }
     }
   }
@@ -143,7 +143,7 @@ public class DirectoryClientActor extends Actor implements DirectoryClient, Chan
       final int expected = unregisterServiceMessage.totalLength();
       final int actual = directoryChannel.write(unregisterServiceMessage, buffer);
       if (actual != expected) {
-        logger().log("DIRECTORY CLIENT: Did not send full service unregister message: " + unregisterServiceMessage.asTextMessage());
+        logger().warn("DIRECTORY CLIENT: Did not send full service unregister message: " + unregisterServiceMessage.asTextMessage());
       }
     }
   }

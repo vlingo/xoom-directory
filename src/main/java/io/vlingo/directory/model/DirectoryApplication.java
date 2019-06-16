@@ -29,22 +29,22 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
 
   @Override
   public void informAttributesClient(final AttributesProtocol client) {
-     logger().log("DIRECTORY: Attributes Client received.");
+     logger().debug("DIRECTORY: Attributes Client received.");
      
      directoryService.use(client);
   }
 
   @Override
   public void informLeaderElected(final Id leaderId, final boolean isHealthyCluster, final boolean isLocalNodeLeading) {
-     logger().log("DIRECTORY: Leader elected: " + leaderId);
+     logger().info("DIRECTORY: Leader elected: " + leaderId);
      
     if (isLocalNodeLeading) {
       leading = true;
-       logger().log("DIRECTORY: Assigned leadership; starting processing.");
+       logger().debug("DIRECTORY: Assigned leadership; starting processing.");
        directoryService.assignLeadership();
     } else {
       leading = false;
-      logger().log("DIRECTORY: Remote node assigned leadership: " + leaderId);
+      logger().debug("DIRECTORY: Remote node assigned leadership: " + leaderId);
       
       // prevent split brain in case another leader pushes in. if this node
       // is not currently leading this operation will have no harm.
@@ -54,7 +54,7 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
 
   @Override
   public void informLeaderLost(final Id lostLeaderId, final boolean isHealthyCluster) {
-     logger().log("DIRECTORY: Leader lost: " + lostLeaderId);
+     logger().warn("DIRECTORY: Leader lost: " + lostLeaderId);
      
      if (localNode.id().equals(lostLeaderId)) {
        leading = false;
@@ -64,7 +64,7 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
 
   @Override
   public void informLocalNodeShutDown(final Id nodeId) {
-    logger().log("DIRECTORY: Local node left cluster: " + nodeId + "; relinquishing leadership");
+    logger().info("DIRECTORY: Local node left cluster: " + nodeId + "; relinquishing leadership");
     leading = false;
     
     // prevent split brain in case another leader pushes in. if this node
@@ -75,30 +75,30 @@ public class DirectoryApplication extends ClusterApplicationAdapter {
   @Override
   public void informNodeLeftCluster(final Id nodeId, final boolean isHealthyCluster) {
     if (localNode.id().equals(nodeId)) {
-      logger().log("DIRECTORY: Node left cluster: " + nodeId + "; relinquishing leadership");
+      logger().info("DIRECTORY: Node left cluster: " + nodeId + "; relinquishing leadership");
       leading = false;
       
       // prevent split brain in case another leader pushes in. if this node
       // is not currently leading this operation will have no harm.
       directoryService.relinquishLeadership();
     } else {
-      logger().log("DIRECTORY: Node left cluster: " + nodeId + (isHealthyCluster ? "; cluster still healthy" : "; cluster not healthy"));
+      logger().info("DIRECTORY: Node left cluster: " + nodeId + (isHealthyCluster ? "; cluster still healthy" : "; cluster not healthy"));
     }
   }
 
   @Override
   public void informQuorumAchieved() {
     if (leading) {
-      logger().log("DIRECTORY: Quorum reachieved; restarting processing.");
+      logger().debug("DIRECTORY: Quorum reachieved; restarting processing.");
       directoryService.assignLeadership();
     } else {
-      logger().log("DIRECTORY: Quorum achieved");
+      logger().info("DIRECTORY: Quorum achieved");
     }
   }
 
   @Override
   public void informQuorumLost() {
-    logger().log("DIRECTORY: Quorum lost; pausing processing.");
+    logger().warn("DIRECTORY: Quorum lost; pausing processing.");
     
     if (leading) {
       directoryService.relinquishLeadership();
