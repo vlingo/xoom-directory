@@ -7,6 +7,7 @@
 
 package io.vlingo.directory.model;
 
+import io.vlingo.actors.ActorInstantiator;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.Startable;
@@ -54,24 +55,24 @@ public interface DirectoryService extends Startable, Stoppable {
           final int maxMessageSize,
           final Timing timing,
           final int unpublishedNotifications) {
-    
+
     final Definition definition =
             Definition.has(
                     DirectoryServiceActor.class,
-                    Definition.parameters(localNode, network, maxMessageSize, timing, unpublishedNotifications),
+                    new DirectoryServiceInstantiator(localNode, network, maxMessageSize, timing, unpublishedNotifications),
                     "vlingo-directory-service");
-    
+
     return stage.actorFor(DirectoryService.class, definition);
   }
 
   public void assignLeadership();
   public void relinquishLeadership();
   public void use(final AttributesProtocol client);
-  
+
   public static class Network {
     public final Group publisherGroup;
     public final int incomingPort;
-    
+
     public Network(final Group publisherGroup, final int incomingPort) {
       this.publisherGroup = publisherGroup;
       this.incomingPort = incomingPort;
@@ -81,10 +82,45 @@ public interface DirectoryService extends Startable, Stoppable {
   public static class Timing {
     public final int processingInterval;
     public final int publishingInterval;
-    
+
     public Timing(final int processingInterval, final int publishingInterval) {
       this.processingInterval = processingInterval;
       this.publishingInterval = publishingInterval;
+    }
+  }
+
+  static class DirectoryServiceInstantiator implements ActorInstantiator<DirectoryServiceActor> {
+    private final Node localNode;
+    private final Network network;
+    private final int maxMessageSize;
+    private final Timing timing;
+    private final int unpublishedNotifications;
+
+    public DirectoryServiceInstantiator(
+            final Node localNode,
+            final Network network,
+            final int maxMessageSize,
+            final Timing timing,
+            final int unpublishedNotifications) {
+      this.localNode = localNode;
+      this.network = network;
+      this.maxMessageSize = maxMessageSize;
+      this.timing = timing;
+      this.unpublishedNotifications = unpublishedNotifications;
+    }
+
+    @Override
+    public DirectoryServiceActor instantiate() {
+      try {
+        return new DirectoryServiceActor(localNode, network, maxMessageSize, timing, unpublishedNotifications);
+      } catch (Throwable e) {
+        throw new IllegalArgumentException("Failed to instantiate " + type() + " because: " + e.getMessage(), e);
+      }
+    }
+
+    @Override
+    public Class<DirectoryServiceActor> type() {
+      return DirectoryServiceActor.class;
     }
   }
 }

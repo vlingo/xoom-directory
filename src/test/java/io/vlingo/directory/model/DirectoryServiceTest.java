@@ -7,14 +7,28 @@
 
 package io.vlingo.directory.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.testkit.TestActor;
 import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.directory.client.DirectoryClient;
+import io.vlingo.directory.client.DirectoryClient.DirectoryClientInstantiator;
 import io.vlingo.directory.client.DirectoryClientActor;
 import io.vlingo.directory.client.MockServiceDiscoveryInterest;
 import io.vlingo.directory.client.ServiceRegistrationInfo;
 import io.vlingo.directory.client.ServiceRegistrationInfo.Location;
+import io.vlingo.directory.model.DirectoryService.DirectoryServiceInstantiator;
 import io.vlingo.directory.model.DirectoryService.Network;
 import io.vlingo.directory.model.DirectoryService.Timing;
 import io.vlingo.wire.multicast.Group;
@@ -22,17 +36,6 @@ import io.vlingo.wire.node.Host;
 import io.vlingo.wire.node.Id;
 import io.vlingo.wire.node.Name;
 import io.vlingo.wire.node.Node;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class DirectoryServiceTest {
     private TestActor<DirectoryService> directory;
@@ -251,7 +254,7 @@ public class DirectoryServiceTest {
                 DirectoryService.class,
                 Definition.has(
                         DirectoryServiceActor.class,
-                        Definition.parameters(node, new Network(group, 37399), 1024, new Timing(100, 100), 20)));
+                        new DirectoryServiceInstantiator(node, new Network(group, 37399), 1024, new Timing(100, 100), 20)));
 
     }
 
@@ -267,9 +270,9 @@ public class DirectoryServiceTest {
                 DirectoryClient.class,
                 Definition.has(
                         DirectoryClientActor.class,
-                        Definition.parameters(interest, group, 1024, 50, 10)));
+                        new DirectoryClientInstantiator(interest, group, 1024, 50, 10)));
     }
-    
+
     private ServiceRegistrationInfo getServiceRegistrationInfo(String s, String s2) {
         final Location location = new Location(s, 1234);
         return new ServiceRegistrationInfo(s2, Collections.singletonList(location));

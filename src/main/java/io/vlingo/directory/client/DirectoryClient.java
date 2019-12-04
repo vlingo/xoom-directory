@@ -7,6 +7,7 @@
 
 package io.vlingo.directory.client;
 
+import io.vlingo.actors.ActorInstantiator;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.Stoppable;
@@ -22,7 +23,7 @@ public interface DirectoryClient extends Stoppable {
           final Stage stage,
           final ServiceDiscoveryInterest interest,
           final Group directoryPublisherGroup) {
-    
+
     return instance(stage, interest, directoryPublisherGroup,
             DefaultMaxMessageSize, DefaultProcessingInterval, DefaultProcessingTimeout);
   }
@@ -34,16 +35,51 @@ public interface DirectoryClient extends Stoppable {
           final int maxMessageSize,
           final long processingInterval,
           final int processingTimeout) {
-    
+
     final Definition definition =
             Definition.has(
                     DirectoryClientActor.class,
-                    Definition.parameters(interest, directoryPublisherGroup, maxMessageSize, processingInterval, processingTimeout),
+                    new DirectoryClientInstantiator(interest, directoryPublisherGroup, maxMessageSize, processingInterval, processingTimeout),
                     ClientName);
-    
+
     return stage.actorFor(DirectoryClient.class, definition);
   }
-  
+
   void register(final ServiceRegistrationInfo info);
   void unregister(final String serviceName);
+
+  static class DirectoryClientInstantiator implements ActorInstantiator<DirectoryClientActor> {
+    private final ServiceDiscoveryInterest interest;
+    private final Group directoryPublisherGroup;
+    private final int maxMessageSize;
+    private final long processingInterval;
+    private final int processingTimeout;
+
+    public DirectoryClientInstantiator(
+            final ServiceDiscoveryInterest interest,
+            final Group directoryPublisherGroup,
+            final int maxMessageSize,
+            final long processingInterval,
+            final int processingTimeout) {
+      this.interest = interest;
+      this.directoryPublisherGroup = directoryPublisherGroup;
+      this.maxMessageSize = maxMessageSize;
+      this.processingInterval = processingInterval;
+      this.processingTimeout = processingTimeout;
+    }
+
+    @Override
+    public DirectoryClientActor instantiate() {
+      try {
+        return new DirectoryClientActor(interest, directoryPublisherGroup, maxMessageSize, processingInterval, processingTimeout);
+      } catch (Exception e) {
+        throw new IllegalArgumentException("Failed to instantiate " + type() + " because: " + e.getMessage(), e);
+      }
+    }
+
+    @Override
+    public Class<DirectoryClientActor> type() {
+      return DirectoryClientActor.class;
+    }
+  }
 }
