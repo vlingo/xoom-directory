@@ -17,7 +17,7 @@ The vlingo/PLATFORM service registry and service discovery tools for distributed
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-directory</artifactId>
-      <version>1.2.0</version>
+      <version>1.2.1</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -25,7 +25,7 @@ The vlingo/PLATFORM service registry and service discovery tools for distributed
 
 ```gradle
 dependencies {
-    compile 'io.vlingo:vlingo-directory:1.2.0'
+    compile 'io.vlingo:vlingo-directory:1.2.1'
 }
 
 repositories {
