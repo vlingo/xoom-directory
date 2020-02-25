@@ -90,6 +90,8 @@ public interface DirectoryService extends Startable, Stoppable {
   }
 
   static class DirectoryServiceInstantiator implements ActorInstantiator<DirectoryServiceActor> {
+    private static final long serialVersionUID = -5865652881873161440L;
+
     private final Node localNode;
     private final Network network;
     private final int maxMessageSize;

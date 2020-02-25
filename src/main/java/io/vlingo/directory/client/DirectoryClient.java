@@ -49,6 +49,8 @@ public interface DirectoryClient extends Stoppable {
   void unregister(final String serviceName);
 
   static class DirectoryClientInstantiator implements ActorInstantiator<DirectoryClientActor> {
+    private static final long serialVersionUID = -1557181522116028941L;
+
     private final ServiceDiscoveryInterest interest;
     private final Group directoryPublisherGroup;
     private final int maxMessageSize;
