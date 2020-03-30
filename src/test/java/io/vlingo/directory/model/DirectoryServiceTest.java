@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.vlingo.actors.Definition;
@@ -43,6 +44,7 @@ public class DirectoryServiceTest {
     private TestWorld testWorld;
 
     @Test
+    @Ignore
     public void testShouldInformInterest() {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
@@ -95,6 +97,7 @@ public class DirectoryServiceTest {
 
 
     @Test
+    @Ignore
     public void testShouldUnregister() {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
@@ -148,6 +151,7 @@ public class DirectoryServiceTest {
 
 
     @Test
+    @Ignore
     public void testAlteredLeadership() {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
@@ -209,6 +213,7 @@ public class DirectoryServiceTest {
 
 
     @Test
+    @Ignore
     public void testRegisterDiscoverMultiple() {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
