@@ -6,18 +6,9 @@ The VLINGO XOOM platform SDK service registry and service discovery for distribu
 
 Docs: https://docs.vlingo.io/vlingo-directory
 
-### Important
-If using snapshot builds [follow these instructions](https://github.com/vlingo/vlingo-platform#snapshots-repository) or you will experience failures.
-
-### Bintray
+### Installation
 
 ```xml
-  <repositories>
-    <repository>
-      <id>jcenter</id>
-      <url>https://jcenter.bintray.com/</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>io.vlingo</groupId>
@@ -31,10 +22,6 @@ If using snapshot builds [follow these instructions](https://github.com/vlingo/v
 ```gradle
 dependencies {
     compile 'io.vlingo:vlingo-directory:1.5.2'
-}
-
-repositories {
-    jcenter()
 }
 ```
 
