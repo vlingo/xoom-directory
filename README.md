@@ -1,6 +1,6 @@
 # vlingo-directory
 
-[![Javadocs](http://javadoc.io/badge/io.vlingo/vlingo-directory.svg?color=brightgreen)](http://javadoc.io/doc/io.vlingo/vlingo-directory) [![Build](https://github.com/vlingo/vlingo-directory/workflows/Build/badge.svg)](https://github.com/vlingo/vlingo-directory/actions?query=workflow%3ABuild) [ ![Download](https://api.bintray.com/packages/vlingo/vlingo-platform-java/vlingo-directory/images/download.svg) ](https://bintray.com/vlingo/vlingo-platform-java/vlingo-directory/_latestVersion) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/vlingo-platform-java/directory)
+[![Javadocs](http://javadoc.io/badge/io.vlingo/vlingo-directory.svg?color=brightgreen)](http://javadoc.io/doc/io.vlingo/vlingo-directory) [![Build](https://github.com/vlingo/vlingo-directory/workflows/Build/badge.svg)](https://github.com/vlingo/vlingo-directory/actions?query=workflow%3ABuild) [![Download](https://img.shields.io/maven-central/v/io.vlingo/vlingo-directory?label=maven)](https://search.maven.org/artifact/io.vlingo/vlingo-directory) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/vlingo-platform-java/directory)
 
 The VLINGO XOOM platform SDK service registry and service discovery for distributed systems.
 
