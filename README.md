@@ -13,7 +13,7 @@ Docs: https://docs.vlingo.io/vlingo-directory
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-directory</artifactId>
-      <version>1.5.2</version>
+      <version>1.6.0</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -21,7 +21,7 @@ Docs: https://docs.vlingo.io/vlingo-directory
 
 ```gradle
 dependencies {
-    compile 'io.vlingo:vlingo-directory:1.5.2'
+    compile 'io.vlingo:vlingo-directory:1.6.0'
 }
 ```
 
