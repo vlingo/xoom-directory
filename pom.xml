@@ -4,7 +4,7 @@
   <artifactId>xoom-directory</artifactId>
   <version>1.6.1-SNAPSHOT</version>
   <name>xoom-directory</name>
-  <description>Service registration and discovery for the vlingo/platform.</description>
+  <description>Service registration and discovery for the VLINGO XOOM Platform.</description>
   <url>https://github.com/vlingo/xoom-directory</url>
   <licenses>
     <license>
@@ -15,7 +15,7 @@
   <developers>
     <developer>
       <id>vlingo</id>
-      <name>vlingo/PLATFORM Team</name>
+      <name>VLINGO XOOM Team</name>
       <email>info@vlingo.io</email>
       <organization>vlingo</organization>
       <organizationUrl>https://vlingo.io/contributors/</organizationUrl>
