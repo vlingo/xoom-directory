@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.vlingo</groupId>
   <artifactId>vlingo-directory</artifactId>
-  <version>1.6.1-SNAPSHOT</version>
+  <version>1.7.5</version>
   <name>vlingo-directory</name>
   <description>Service registration and discovery for the VLINGO XOOM Platform.</description>
   <url>https://github.com/vlingo/xoom-directory</url>
@@ -104,22 +104,22 @@
     <dependency>
       <groupId>io.vlingo.xoom</groupId>
       <artifactId>xoom-common</artifactId>
-      <version>1.6.1-SNAPSHOT</version>
+      <version>1.7.5</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo.xoom</groupId>
       <artifactId>xoom-actors</artifactId>
-      <version>1.6.1-SNAPSHOT</version>
+      <version>1.7.5</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo.xoom</groupId>
       <artifactId>xoom-wire</artifactId>
-      <version>1.6.1-SNAPSHOT</version>
+      <version>1.7.5</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo.xoom</groupId>
       <artifactId>xoom-cluster</artifactId>
-      <version>1.6.1-SNAPSHOT</version>
+      <version>1.7.5</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
