@@ -1,4 +1,4 @@
-package io.vlingo.xoom.directory.implnative;
+package io.vlingo.xoom.directory.nativebuild;
 
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.directory.client.ServiceRegistrationInfo;
@@ -8,7 +8,7 @@ import org.graalvm.nativeimage.c.type.CTypeConversion;
 
 import java.util.Arrays;
 
-public final class NativeImpl {
+public final class NativeBuildEntryPoint {
   @CEntryPoint(name = "Java_io_vlingo_xoom_directorynative_Native_start")
   public static int start(@CEntryPoint.IsolateThreadContext long isolateId, CCharPointer name) {
     final String nameString = CTypeConversion.toJavaString(name);
