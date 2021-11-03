@@ -13,7 +13,7 @@ Docs: https://docs.vlingo.io/xoom-directory
     <dependency>
       <groupId>io.vlingo.xoom</groupId>
       <artifactId>xoom-directory</artifactId>
-      <version>1.8.8</version>
+      <version>1.9.0</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -21,7 +21,7 @@ Docs: https://docs.vlingo.io/xoom-directory
 
 ```gradle
 dependencies {
-    compile 'io.vlingo.xoom:xoom-directory:1.8.8'
+    compile 'io.vlingo.xoom:xoom-directory:1.9.0'
 }
 ```
 
