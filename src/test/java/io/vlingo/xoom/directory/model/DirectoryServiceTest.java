@@ -49,8 +49,8 @@ public class DirectoryServiceTest {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
 
-        // directory assigned leadership
-        directory.actor().assignLeadership();
+        // inform cluster is healthy
+        directory.actor().informHealthyCluster(true);
 
         final ServiceRegistrationInfo info = getServiceRegistrationInfo("test-host", "test-service");
 
@@ -74,8 +74,7 @@ public class DirectoryServiceTest {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
 
-        // directory NOT assigned leadership
-        directory.actor().relinquishLeadership(); // actually never had leadership, but be explicit and prove no harm
+        directory.actor().informHealthyCluster(false); // actually never been healthy, but be explicit and prove no harm
 
         final ServiceRegistrationInfo registrationInfo = getServiceRegistrationInfo("test-host", "test-service");
         final MockServiceDiscoveryInterest interest = new MockServiceDiscoveryInterest("interest1", 0);
@@ -103,7 +102,7 @@ public class DirectoryServiceTest {
         directory.actor().use(new TestAttributesClient());
 
         // directory assigned leadership
-        directory.actor().assignLeadership();
+        directory.actor().informHealthyCluster(true);
 
         int nrClients = 3;
 
@@ -156,8 +155,8 @@ public class DirectoryServiceTest {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
 
-        // START directory assigned leadership
-        directory.actor().assignLeadership();
+        // START informing cluster is healthy
+        directory.actor().informHealthyCluster(true);
 
         int nrClients = 3;
 
@@ -183,8 +182,8 @@ public class DirectoryServiceTest {
 
             assertRegistered(interests, registrationInfos);
 
-            // ALTER directory relinquished leadership
-            directory.actor().relinquishLeadership();
+            // CONTINUE with unhealthy cluster
+            directory.actor().informHealthyCluster(false);
             pause();
             for (final MockServiceDiscoveryInterest interest : interests) {
                 interest.getServicesSeen().clear();
@@ -195,8 +194,8 @@ public class DirectoryServiceTest {
 
             assertNotRegistered(interests, registrationInfos);
 
-            // ALTER directory assigned leadership
-            directory.actor().assignLeadership();
+            // CONTINUE with unhealthy cluster
+            directory.actor().informHealthyCluster(true);
             pause();
             for (final MockServiceDiscoveryInterest interest : interests) {
                 interest.getServicesSeen().clear();
@@ -217,7 +216,7 @@ public class DirectoryServiceTest {
     public void testRegisterDiscoverMultiple() {
         directory.actor().start();
         directory.actor().use(new TestAttributesClient());
-        directory.actor().assignLeadership();
+        directory.actor().informHealthyCluster(true);
 
         int nrClients = 3;
 

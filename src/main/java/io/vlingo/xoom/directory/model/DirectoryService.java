@@ -18,7 +18,7 @@ import io.vlingo.xoom.wire.node.Node;
 
 public interface DirectoryService extends Startable, Stoppable {
 
-  public static DirectoryService instance(
+  static DirectoryService instance(
           final Stage stage,
           final Node localNode) {
 
@@ -48,7 +48,7 @@ public interface DirectoryService extends Startable, Stoppable {
     return directoryService;
   }
 
-  public static DirectoryService instance(
+  static DirectoryService instance(
           final Stage stage,
           final Node localNode,
           final Network network,
@@ -65,11 +65,10 @@ public interface DirectoryService extends Startable, Stoppable {
     return stage.actorFor(DirectoryService.class, definition);
   }
 
-  public void assignLeadership();
-  public void relinquishLeadership();
-  public void use(final AttributesProtocol client);
+  void informHealthyCluster(boolean isHealthyCluster);
+  void use(final AttributesProtocol client);
 
-  public static class Network {
+  class Network {
     public final Group publisherGroup;
     public final int incomingPort;
 
@@ -79,7 +78,7 @@ public interface DirectoryService extends Startable, Stoppable {
     }
   }
 
-  public static class Timing {
+  class Timing {
     public final int processingInterval;
     public final int publishingInterval;
 
@@ -89,7 +88,7 @@ public interface DirectoryService extends Startable, Stoppable {
     }
   }
 
-  static class DirectoryServiceInstantiator implements ActorInstantiator<DirectoryServiceActor> {
+  class DirectoryServiceInstantiator implements ActorInstantiator<DirectoryServiceActor> {
     private static final long serialVersionUID = -5865652881873161440L;
 
     private final Node localNode;

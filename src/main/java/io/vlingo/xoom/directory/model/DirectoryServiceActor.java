@@ -36,7 +36,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   private Cancellable cancellableMessageProcessing;
   private Cancellable cancellablePublishing;
   private AttributesProtocol attributesClient;
-  private boolean leader;
+  private boolean isHealthyCluster;
   private final Node localNode;
   private final int maxMessageSize;
   private final Network network;
@@ -49,8 +49,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
           final Network network,
           final int maxMessageSize,
           final Timing timing,
-          final int unpublishedNotifications)
-  throws Throwable {
+          final int unpublishedNotifications) {
     this.localNode = localNode;
     this.network = network;
     this.maxMessageSize = maxMessageSize;
@@ -63,23 +62,22 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
   //=========================================
 
   @Override
-  public void assignLeadership() {
-    leader = true;
-    startProcessing();
+  public void informHealthyCluster(boolean isHealthyCluster) {
+    logger().info("DIRECTORY: Inform healthy cluster " + isHealthyCluster);
+    if (this.isHealthyCluster != isHealthyCluster) {
+      this.isHealthyCluster = isHealthyCluster;
+      if (isHealthyCluster) {
+        startProcessing();
+      } else {
+        stopProcessing();
+      }
+    }
   }
-
-  @Override
-  public void relinquishLeadership() {
-    leader = false;
-    stopProcessing();
-  }
-
 
   @Override
   public void use(final AttributesProtocol client) {
     this.attributesClient = client;
   }
-
   
   //=========================================
   // Scheduled
@@ -87,7 +85,7 @@ public class DirectoryServiceActor extends Actor implements DirectoryService, Ch
 
   @Override
   public void intervalSignal(final Scheduled<IntervalType> scheduled, final IntervalType data) {
-    if (!leader) return;
+    if (!isHealthyCluster) return;
     
     switch (data) {
     case Processing:
